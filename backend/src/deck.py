@@ -1,14 +1,22 @@
-
 import random
 
 
 class Deck:
 	def __init__(self, cardlist):
-		self.cards = cardlist
+		self.cards = []
+		
+		i = 0
+		for card in cardlist:
+			self.cards.append({'id':i,'text':card})
+			i += 1
 
 
 	def shuffle(self):
 		random.shuffle(cards)
+
+
+	def size(self):
+		return len(self.cards)
 
 
 	def draw(self, count=1):
