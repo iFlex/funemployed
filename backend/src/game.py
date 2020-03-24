@@ -215,9 +215,6 @@ class Game:
 			hired.add_won_job_card(self.current_role)
 
 			self.turn_in_progress = False
-			self.players_interviewed = {}
-			self.ready_players_count = 0
-
 			return {"status":"success", "hired":hired_player_id, "card":self.current_role}
 
 		return {"error":"invalid_request","message":"No turn in progress, cannot end an inexistent turn"}
