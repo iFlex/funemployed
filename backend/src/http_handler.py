@@ -4,19 +4,21 @@ from player import Player
 import json
 
 '''
-GET  /game-new
-GET  /[game_id]/player-add/[user_id]
-GET  /[game_id]/player-remove/[user_id]
-GET  /[game_id]/players-shuffle
-GET  /[game_id]/player-order
-GET  /[game_id]/turn-start
-POST /[game_id]/player-ready
-    BODY:      [card_id_1, card_id_2, card_id_3]
-GET  /[game_id]/player-unready
-GET  /[game_id]/interview-start/[player-id]
-GET  /[game_id]/interview-end
-GET  /[game_id]/turn-end/[hired-player-id]
-GET  /[game_id]/game-end
+GET  /game-new                                               -> {"game_id": "UYJCR"}  
+GET  /[game_id]/player-add/[user_id]                         -> {"status": "ok"}
+GET  /[game_id]/player-remove/[user_id]                      -> {'status':'ok'}
+GET  /[game_id]/players-shuffle                              -> ["user_id_1", "user_id_2", "user_id_2"]
+GET  /[game_id]/player-order                                 -> ["user_id_1", "user_id_2", "user_id_2"]
+GET  /[game_id]/turn-start                                   -> {"role": {"id": 0, "text": "card_content"}, "employer": "employer_id", "candidates": [{"player": "test", "new_cards": [{"id": 0, "text": "a"}, {"id": 1, "text": "b"}, {"id": 2, "text": "c"}, {"id": 3, "text": "d"}, {"id": 4, "text": "e"}, {"id": 5, "text": "f"}]}, {"player": "test2", "new_cards": [{"id": 6, "text": "g"}, {"id": 7, "text": "h"}, {"id": 8, "text": "i"}, {"id": 9, "text": "j"}, {"id": 10, "text": "k"}, {"id": 11, "text": "l"}]}, {"player": "test3", "new_cards": [{"id": 12, "text": "m"}, {"id": 13, "text": "n"}, {"id": 14, "text": "o"}, {"id": 15, "text": "p"}, {"id": 16, "text": "q"}, {"id": 17, "text": "r"}]}]}
+GET  /[game-id]/player-ready/card_id_1/card_id_2/card_id_3   -> {"status": "ok"}
+POST /[game_id]/player-ready                                
+    BODY:      [card_id_1, card_id_2, card_id_3] 
+GET  /[game_id]/player-unready                               -> {"status": "ok"}
+GET  /[game_id]/interview-start/[player-id]                  -> {"player_id": "test", "card_ids": ["selected_card_id_1","selected_card_id_2","selected_card_id_3"]}
+GET  /[game_id]/interview-end                                -> {"player_id": "test", "card_ids": ["selected_card_id_1","selected_card_id_2","selected_card_id_3"]}
+GET  /[game_id]/turn-end/[hired-player-id]                   -> {"status":"success", "hired":"hired_player_id", "card":{"id":0, "card_text"}}
+GET  /[game_id]/game-end                                     -> {"status":"ok"}  
+GET  /[game_id]                                              -> {"status":"ok"}
 '''
 
 class RestHttpHandler(BaseHTTPRequestHandler):
@@ -59,7 +61,8 @@ class RestHttpHandler(BaseHTTPRequestHandler):
                 if not (len(parameters) == 1):
                     return {"error":"invalid_parameter","message":"Please provide a player-id in the URL"}
                 try:
-                    return game.remove_player(parameters[0])
+                    game.remove_player(parameters[0])
+                    return {'status':'ok'}
                 except Exception as e:
                     return {"error":"failure","message":str(e)}
             
@@ -146,7 +149,7 @@ class RestHttpHandler(BaseHTTPRequestHandler):
             status = 500
 
         self.send_response(status)
-        self.send_header('Content-type','text/html')
+        self.send_header('Content-type','application/json')
         self.end_headers()
         self.wfile.write(bytearray(json.dumps(response_body), "utf-8")) #Doesnt work
         return

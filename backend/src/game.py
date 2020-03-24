@@ -73,7 +73,7 @@ class Game:
 			self.ready_players_count -= 1
 
 		del self.players[player_id]
-		for i in range(0, self.player_order):
+		for i in range(0, len(self.player_order)):
 			if self.player_order[i] == player_id:
 				self.player_order.pop(i)
 				break
@@ -82,6 +82,7 @@ class Game:
 	def shuffle_player_order(self):
 		random.shuffle(self.player_order)
 		return self.player_order
+
 
 	def get_player_order(self):
 		return self.player_order
@@ -177,7 +178,7 @@ class Game:
 			return {"error":"invalid_state","message":"An interview is already in progress, please close it to start a new one"}
 		if not self.turn_in_progress:
 			return {"error":"invalid_state","message":"No turn is in progress, cannot start interview"}
-		if not (player_id == self.current_employer.get_id()):
+		if player_id == self.current_employer.get_id():
 			return {"error":"invalid_request","message":"Cannot interview the employer..."} 
 		if not self.all_candidates_ready():
 			return {"error":"invalid_state","message":"not all candidates are ready for interviewing"}
@@ -224,7 +225,7 @@ class Game:
 
 
 	def end_game(self):
-		return {"status":"success"}
+		return {"status":"ok"}
 
 
 	def to_json_dict(self):
