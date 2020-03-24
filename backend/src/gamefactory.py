@@ -29,6 +29,10 @@ class GameFactory:
 		return self.registry[id]
 
 
+	def get_game(self, game_id):
+		return self.registry.get(game_id, None)
+
+
 	def end_game(self, game_id):
 		if game_id not in self.registry:
 			raise Exception("Attempt to close inexistent game")

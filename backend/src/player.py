@@ -28,6 +28,11 @@ class Player:
 
 
 	def set_candidate_cards(self, card_ids):
+		for card_id in card_ids:
+			if card_id not in self.traits:
+				print(self.traits)
+				print(card_id)
+				raise Exception("Player attempted to select card they don't own. Stop stealing!!!")
 		self.candidate_cards = card_ids
 
 
@@ -58,7 +63,7 @@ class Player:
 	def drop_trait_cards(self, card_ids):
 		for card_id in card_ids:
 			if card_id not in self.traits:
-				raise Exception("Attempted to card from player hand that does not exist in player hand")
+				raise Exception("Attempted to drop card from player hand that does not exist in player hand")
 			del self.traits[card_id]
 
 
@@ -68,3 +73,22 @@ class Player:
 			raise Exception("Duplicate won card added to player hand")
 
 		self.won[id] = card
+
+
+	def to_json_dict(self):
+		result = {
+			'id':self.id,
+			'candidate_cards':self.candidate_cards,
+			'ready':self.ready,
+			'traits':[],
+			'won':[]
+		}
+
+		print(self.traits)
+		for trait in self.traits:
+		 	result['traits'].append(self.traits[trait])
+
+		for won_c in self.won:
+		 	result['won'].append(self.won[won_c])
+		
+		return result

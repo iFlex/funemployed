@@ -2,6 +2,9 @@ import random
 
 
 class Game:
+	MAX_PLAYER_HAND = 6
+	MAX_INTERVIEW_CARD_COUNT = 3
+
 	def __init__(self, id, jobs_deck, traits_deck):
 		self.id = id
 		self.jobs= jobs_deck
@@ -13,12 +16,11 @@ class Game:
 		self.turn_in_progress      = False
 		self.interview_in_progress = False
 		
-		self.current_interviewer     = None
+		self.current_employer        = None
 		self.current_interviewer_pos = None
 		self.current_candidate       = None
 		self.current_role            = None
 
-		self.MAX_PLAYER_HAND = 6
 		self.ready_players_count = 0
 
 
@@ -53,7 +55,7 @@ class Game:
 		return None
 
 
-	def add_player(self, player):
+	def add_player(self, player):	
 		id = player.get_id()
 		if id in self.players:
 			raise Exception("Attempted to add duplicate player record")
@@ -79,14 +81,14 @@ class Game:
 
 	def shuffle_player_order(self):
 		random.shuffle(self.player_order)
-
+		return self.player_order
 
 	def get_player_order(self):
 		return self.player_order
 
 
 	def replenish_player_cards(self, player):
-		needed_count = self.MAX_PLAYER_HAND
+		needed_count = Game.MAX_PLAYER_HAND
 		count = len(player.get_trait_cards())
 		needed_count -= count
 
@@ -99,12 +101,11 @@ class Game:
 		candidate_cards = []
 		for player_id in self.players:
 			current_player = self.players[player_id]
-			if not current_player.equals(self.current_employer):
-				cards = self.replenish_player_cards(current_player)
-				candidate_cards.append({
-					"player":current_player.get_id(),
-					"new_cards":cards
-				})
+			cards = self.replenish_player_cards(current_player)
+			candidate_cards.append({
+				"player":current_player.get_id(),
+				"new_cards":cards
+			})
 		return candidate_cards
 
 
@@ -112,7 +113,6 @@ class Game:
 		if self.turn_in_progress == True or self.interview_in_progress == True:
 			raise Exception("Attempted to start a new turn while a turn or interview is in progress")
 
-		self.turn_in_progress = True
 		self.pick_next_employer()
 		self.current_role     = self.pick_next_role()
 
@@ -129,12 +129,12 @@ class Game:
 			new_cards = self.replenish_cards()
 		except Exception as e:
 			#ToDo: use custom exception
-			print("Failed to replenish cards for users")
 			return {"error":"deck_draw_fail","message":"Draw deck is too small"}
 
 		self.players_interviewed = {}
 		self.ready_players_count = 0
-
+		self.turn_in_progress = True
+		
 		return {"role":self.current_role, "employer":self.current_employer.get_id(), "candidates":new_cards}
 
 
@@ -151,10 +151,11 @@ class Game:
 		player = self.retrieve_player(player_id)
 		if player.equals(self.current_employer):
 			return {"error":"invalid_request","message":"employer does not need to ready up and submit cards"}
+		if not (len(card_ids) == Game.MAX_INTERVIEW_CARD_COUNT):
+			return {"error":"invalid_request","message":"Player has selected %d cards for an interview, they should have chosen %d" % (Game.MAX_INTERVIEW_CARD_COUNT, len(card_ids))}
 
 		player.set_candidate_cards(card_ids)
 		if player.is_ready() == False:
-			print("Player was readied up %d" % player.get_id())
 			self.ready_players_count += 1
 			player.set_ready(True)
 
@@ -163,7 +164,6 @@ class Game:
 
 	def all_candidates_ready(self):
 		needed_count = len(self.players) - 1
-		print("ready: %d neede:%d" %(self.ready_players_count,needed_count))
 		return self.ready_players_count == needed_count
 
 
@@ -177,6 +177,8 @@ class Game:
 			return {"error":"invalid_state","message":"An interview is already in progress, please close it to start a new one"}
 		if not self.turn_in_progress:
 			return {"error":"invalid_state","message":"No turn is in progress, cannot start interview"}
+		if not (player_id == self.current_employer.get_id()):
+			return {"error":"invalid_request","message":"Cannot interview the employer..."} 
 		if not self.all_candidates_ready():
 			return {"error":"invalid_state","message":"not all candidates are ready for interviewing"}
 		if self.all_candidates_interviewed():
@@ -223,4 +225,36 @@ class Game:
 
 	def end_game(self):
 		return {"status":"success"}
+
+
+	def to_json_dict(self):
+		result = {
+			'id':self.id,
+			'player_order':self.player_order,
+			'turn_in_progress':self.turn_in_progress,
+			'interview_in_progress':self.interview_in_progress,
+			'ready_players_count':self.ready_players_count,
+			'current_interviewer_pos':self.current_interviewer_pos,
+			'current_role':self.current_role,
+			'players':{},
+			"players_interviewed":{}
+		}
+
+		if self.current_employer:
+			result['current_employer'] = self.current_employer.to_json_dict()
+		if self.current_candidate:
+			result['current_candidate'] = self.current_candidate.to_json_dict()
+		if self.jobs:
+			result['jobs'] = self.jobs.to_json_dict()
+		if self.traits:
+			result['traits'] = self.traits.to_json_dict()
+
+		for player in self.players:
+			result['players'][player] = self.players[player].to_json_dict()
+
+		for player in self.players_interviewed:
+			result['players_interviewed'][player] = True
+
+		print(result)
+		return result
 		

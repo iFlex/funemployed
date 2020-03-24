@@ -33,3 +33,7 @@ class Deck:
 			self.cards.append(card)
 
 		self.shuffle()
+
+
+	def to_json_dict(self):
+		return self.cards
