@@ -9,8 +9,7 @@ class Game:
 		self.players = {}
 		self.player_order = []
 		self.players_interviewed = {}
-		self.turns = 0
-
+		
 		self.turn_in_progress      = False
 		self.interview_in_progress = False
 		
@@ -63,6 +62,7 @@ class Game:
 		self.player_order.append(id)
 
 
+	#ToDo: handle exit of interviewer, current candidate, interviewed candidate, not interviewed candidate
 	def remove_player(self, player_id):
 		if player_id not in self.players:
 			raise Exception("Attempted to remove inexistent player")
@@ -118,10 +118,11 @@ class Game:
 
 		if self.current_role == None:
 			#come on, you've played throught all of the roles, aren't you bored already?>
-			return {"error":"Game Over","message":"All roles played"}
+			return {"error":"game_over","message":"All roles played"}
+
 		if len(self.players) < 3:
-			#can't really play with such a sol number of peeps
-			return {"error":"Game Over","message":"Not enought players left"}
+			#can't really play with such a smol number of peeps
+			return {"error":"insufficient_players","message":"Not enought players left"}
 
 		#replenish cards
 		try:
