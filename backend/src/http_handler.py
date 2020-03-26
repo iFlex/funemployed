@@ -52,8 +52,7 @@ class RestHttpHandler(BaseHTTPRequestHandler):
                 if not (len(parameters) == 1):
                     return {"error":"invalid_parameter","message":"Please provide a player-id in the URL"}
                 try:
-                    game.add_player(Player(parameters[0], {}))
-                    return {"status":"ok"}
+                    return game.add_player(Player(parameters[0], {}))
                 except Exception as e:
                     return {"error":"failure","message":str(e)}
 
