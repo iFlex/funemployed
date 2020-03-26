@@ -3,10 +3,14 @@ import { NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { OfficeComponent } from './bits/office/office.component';
+import { GameLobbyComponent } from './bits/gamelobby/gamelobby.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    OfficeComponent,
+    GameLobbyComponent,
   ],
   imports: [
     BrowserModule,
