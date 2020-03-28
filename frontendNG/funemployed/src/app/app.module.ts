@@ -9,6 +9,9 @@ import { RouterModule } from '@angular/router';
 import { MenuComponent } from './menu.component';
 import { RulesComponent } from './bits/rules/rules.component';
 
+// primeng stuff
+import { ButtonModule } from 'primeng/button';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -20,6 +23,7 @@ import { RulesComponent } from './bits/rules/rules.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
+    ButtonModule,
     RouterModule.forRoot([
     { path: 'gamelobby', component: GameLobbyComponent },
     { path: 'office', component: OfficeComponent },

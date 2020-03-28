@@ -8,8 +8,10 @@ import { Component, OnInit } from '@angular/core';
   })
 
 export class GameLobbyComponent implements OnInit {
+    roomReady:boolean;
     constructor(private router: Router) {}
 
     ngOnInit() {
+      this.roomReady = false;
     }
 }
