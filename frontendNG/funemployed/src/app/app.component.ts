@@ -8,10 +8,6 @@ import { Router } from '@angular/router';
 })
 
 export class AppComponent {
-  title = 'funemployed';
-  username = "gogu17";
-  roomcode = "1234";
-
   constructor(private router: Router) {}
 
   hireMe() {

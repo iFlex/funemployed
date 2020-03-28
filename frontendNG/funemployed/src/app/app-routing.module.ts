@@ -6,9 +6,8 @@ import { GameLobbyComponent } from './bits/gamelobby/gamelobby.component';
 
 
 const routes: Routes = [
-  { path:'', component:AppComponent},
   { path: 'gamelobby', component:GameLobbyComponent},
-  { path: 'office', component:OfficeComponent },
+  { path: 'office', component:OfficeComponent }
 ];
 
 @NgModule({
