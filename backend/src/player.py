@@ -1,5 +1,14 @@
+import random
+import string
+
+
 class Player:
 	def __init__(self, id, details):
+		if 'token' in details:
+			self.token = details['token']
+		else:
+			self.token = ''.join(random.choice(string.ascii_letters) for x in range(128)).upper()
+		
 		self.id = id
 		self.details = details
 		self.traits = {}
@@ -7,8 +16,13 @@ class Player:
 		self.candidate_cards = []
 		self.ready = False
 
+
+	def get_token(self):
+		return self.token
+
+
 	def equals(self, other):
-		return self.id == other.get_id()
+		return self.id == other.get_id() and self.token == other.get_token()
 
 
 	def get_id(self):

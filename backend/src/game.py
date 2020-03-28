@@ -63,6 +63,7 @@ class Game:
 		self.players[id] = player
 		self.player_order.append(id)
 
+		return {"token":player.get_token()}
 
 	#ToDo: handle exit of interviewer, current candidate, interviewed candidate, not interviewed candidate
 	def remove_player(self, player_id):
@@ -152,6 +153,8 @@ class Game:
 		player = self.retrieve_player(player_id)
 		if player.equals(self.current_employer):
 			return {"error":"invalid_request","message":"employer does not need to ready up and submit cards"}
+		if card_ids == None:
+			return {"error":"invalid_request","message":"No cards provided"}
 		if not (len(card_ids) == Game.MAX_INTERVIEW_CARD_COUNT):
 			return {"error":"invalid_request","message":"Player has selected %d cards for an interview, they should have chosen %d" % (Game.MAX_INTERVIEW_CARD_COUNT, len(card_ids))}
 
@@ -256,6 +259,5 @@ class Game:
 		for player in self.players_interviewed:
 			result['players_interviewed'][player] = True
 
-		print(result)
 		return result
 		
