@@ -1,3 +1,6 @@
 <div>
-    <h1>TODO: add rows for wach player</h1>
+    <li *ngFor="let player of players">
+        Name: {{player.name}}
+        Wins: {{player.jobs.length}}
+    </li>
 </div>

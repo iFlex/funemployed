@@ -56,4 +56,8 @@ export class GameLobbyComponent implements OnInit {
 
       this.roomReady = true;
     }
+
+    startGame() {
+      this.router.navigate(['/office']);  // define your component where you want to go
+    }
 }

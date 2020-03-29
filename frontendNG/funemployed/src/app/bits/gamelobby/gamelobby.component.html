@@ -1,5 +1,5 @@
 <div>
-    <p-button [disabled]="!roomReady" label="Start Game">
+    <p-button [disabled]="!roomReady" label="Start Game" (click)="startGame()">
     </p-button>
 
     <h1>Players</h1>
@@ -7,6 +7,7 @@
     <ul>
         <li>
             <input type="text" [ngModel]="currentPlayer.name"/>
+            Ready?
             <input type="checkbox" [ngModel]="currentPlayer.ready" (ngModelChange)="setReady($event)" />
         </li>
 
