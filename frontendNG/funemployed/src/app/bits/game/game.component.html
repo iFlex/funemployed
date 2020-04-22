@@ -1,0 +1,23 @@
+<div class="game_screen">
+    <div class="employer_slice">
+        <div class="employer_container">{{game.employer}}</div>
+        <div class="employer_actions_container">{{game.role}}</div>
+    </div>
+    <div class="employee_slice" *ngFor="let player of game.candidates">
+        <div class="employee_container">{{player.id}}</div>
+        <div class="employee_actions_container">{{player.display_items[0]}}</div>
+    </div>
+</div>
+<div class="card_slice">
+    <div class="card_deck">
+        <div class="card" *ngFor="let card of game.cards" id="{{card.id}}" (click)="toggleCard($event)">
+            {{card.text}}
+        </div>
+    </div>
+    <div class="ready_container">
+        <button (click)="toggleReady($event)">Ready</button>
+    </div>
+</div>
+<div class="ready_container">
+    <button (click)="refresh($event)">degug::refresh</button>
+</div>

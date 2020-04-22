@@ -1,12 +1,7 @@
 import { Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import { GameLobbyService } from './gamelobby.service';
-
-class PlayerStatus
-{
-  name: String
-  ready: boolean
-}
+import { GameService } from '../game/game.service';
 
 @Component({
     selector: 'gamelobby-root',
@@ -16,48 +11,47 @@ class PlayerStatus
 
 export class GameLobbyComponent implements OnInit {
     roomReady: boolean;
-    currentPlayer: PlayerStatus;
-    playerStatuses: PlayerStatus[];
     constructor(private router: Router,
-                private gamelobbyService: GameLobbyService) {                  
-      this.currentPlayer = new PlayerStatus();
-      this.currentPlayer.name = "NewPlayer1";
-      this.currentPlayer.ready = false;
-
-      this.playerStatuses = [];
+                public gameLobby: GameLobbyService,
+                private gameService: GameService) {                  
+      
     }
 
     ngOnInit() {
       this.roomReady = false;
-
-      this.gamelobbyService.getGameLobbyStatus().subscribe((data)=>{
-        console.log(data);
-        this.playerStatuses = data['players'];
-      });
+      
+      if(!this.gameLobby.doesLobbyExist()){
+        this.gameLobby.createLobby().subscribe((data) =>{
+          this.gameLobby.gameId = data["game_id"];  
+        });
+      } else {
+        this.gameLobby.updateLobby();
+      }
     }
 
     setReady(event: any) {
       console.log(event);
-      this.currentPlayer.ready = !this.currentPlayer.ready;
+      // this.currentPlayer.ready = !this.currentPlayer.ready;
 
-      if (!this.currentPlayer.ready)
-      {
-        this.roomReady = false;
-        return;
-      }
+      // if (!this.currentPlayer.ready)
+      // {
+      //   this.roomReady = false;
+      //   return;
+      // }
 
-      for(var i = 0; i < this.playerStatuses.length; i++)
-      {
-        if(!this.playerStatuses[i].ready) {
-          this.roomReady = false;
-          return;
-        }
-      }
+      // for(var i = 0; i < this.playerStatuses.length; i++)
+      // {
+      //   if(!this.playerStatuses[i].ready) {
+      //     this.roomReady = false;
+      //     return;
+      //   }
+      // }
 
       this.roomReady = true;
     }
 
     startGame() {
-      this.router.navigate(['/office']);  // define your component where you want to go
+      this.gameService.setup(this.gameLobby.gameId, this.gameLobby.playerId);
+      this.router.navigate(['/game']);  // define your component where you want to go
     }
 }

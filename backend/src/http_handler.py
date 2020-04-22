@@ -2,6 +2,7 @@ from gamefactory import GameFactory
 from http.server import BaseHTTPRequestHandler
 from player import Player
 import json
+import mimetypes
 
 '''
 GET  /game-new                                               -> {"game_id": "UYJCR"}  
@@ -23,8 +24,8 @@ GET  /[game_id]                                              -> {"status":"ok"}
 
 class RestHttpHandler(BaseHTTPRequestHandler):
     game_factory = GameFactory()
+    serve_from = "./"
 
-        
     def decode_url(url):
         components = url.split('/')
         game_id = components[1]
@@ -39,7 +40,7 @@ class RestHttpHandler(BaseHTTPRequestHandler):
 
 
     def handle_request(self, game_id, command, parameters, body):
-        print("game_id:'%s' command:'%s'" % (game_id, command))
+        print("game_id:%s command:%s parameters:%s" %(game_id, command, parameters))
         if game_id == 'game-new':
             game = RestHttpHandler.game_factory.new_game()
             return {'game_id':game.get_id()}
@@ -137,21 +138,61 @@ class RestHttpHandler(BaseHTTPRequestHandler):
         return {"error":"invalid_request", "message":"request did not follow the correct URL convention"}
 
 
+    def ensure_file_path_allowed(path):
+        illegal_patterns = ['..']
+        for pattern in illegal_patterns:
+            if pattern in path:
+                raise Eception("Illegal file path. Behave!")
+
+
+    def path_to_mime_type(path):
+        dot = path.rfind('.')
+        ext = path[dot:]
+        
+        print("Excension:"+ext)
+
+        return mimetypes.types_map[ext]
+
+
+    def return_file(path):
+        RestHttpHandler.ensure_file_path_allowed(path)
+
+        try:
+            f = open(RestHttpHandler.serve_from + path, "rb")
+            return f.read()
+        except Exception as e:
+            print(e)
+            return bytearray("kthxbay", "utf-8")
+
+
     def do_GET(self):
         print(self.path)
+        api_pattern = "/api/";
+        #very simplistic way of choosing when to server a file and when to server the API functions
+        if api_pattern in self.path :
+            indexof = self.path.index(api_pattern)
+            game_id, command, parameters = RestHttpHandler.decode_url(self.path[indexof + len(api_pattern) - 1:])
+            
+            response_body = self.handle_request(game_id, command, parameters, None)
 
-        game_id, command, parameters = RestHttpHandler.decode_url(self.path)
-        response_body = self.handle_request(game_id, command, parameters, None)
+            status = 200
+            if 'error' in response_body:
+                status = 500
 
-        status = 200
-        if 'error' in response_body:
-            status = 500
+            self.send_response(status)
+            self.send_header('Access-Control-Allow-Origin','*')
+            self.send_header('Access-Control-Expose-Headers','Content-Type')
+            self.send_header('Cache-Control','no-store, no-cache, must-revalidate')
+            self.send_header('Content-Type','application/json;charset=utf-8')
+            self.send_header('Response', status)
+            self.end_headers()
+            self.wfile.write(bytearray(json.dumps(response_body), "utf-8")) 
 
-        self.send_response(status)
-        self.send_header('Content-type','application/json')
-        self.end_headers()
-        self.wfile.write(bytearray(json.dumps(response_body), "utf-8")) #Doesnt work
-        return
+        else:
+            self.send_response(200)
+            self.send_header('Content-type', RestHttpHandler.path_to_mime_type(self.path))
+            self.end_headers()
+            self.wfile.write(RestHttpHandler.return_file(self.path))
 
 
     def do_POST(self):

@@ -1,16 +1,38 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { GameCommService } from '../../services/gamecomm.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GameLobbyService {
+  public gameId: String;
+  public playerId: String; //this is the owner of the lobby
+  public players: String[];
 
-  constructor(private httpClient: HttpClient) {
-
+  constructor(private gamecomm: GameCommService) {
+    this.gameId = null;
+    this.playerId = null;
+    this.players = [];
   }
 
-  public getGameLobbyStatus() {
-      return this.httpClient.get("");
+
+  public doesLobbyExist(){
+    if(this.gameId == null){
+      return false;
+    }
+
+    return true;
+  }
+
+  public updateLobby() {
+    this.gamecomm.status(this.gameId).subscribe((data) => {
+      console.log(data);
+      this.players = data['player_order'];
+      console.log(this.players)
+    });
+  }
+
+  public createLobby() {
+    return this.gamecomm.newGame();
   }
 }
