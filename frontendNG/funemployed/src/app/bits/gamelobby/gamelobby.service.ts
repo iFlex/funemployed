@@ -43,6 +43,7 @@ export class GameLobbyService {
       //check if the game has started
       if(data['turn_in_progress'] == true){
         this.startGame();
+        this.polling = false;
       }
     });
   }
@@ -54,14 +55,16 @@ export class GameLobbyService {
   public periodicUpdate(ctx){
     console.log("TICK");
     ctx.updateLobby();
-    setTimeout(()=>{ctx.periodicUpdate(ctx)}, 2000);
+    if(ctx.polling == true) {
+      setTimeout(()=>{ctx.periodicUpdate(ctx)}, 2000);
+    }
   }
 
   public enablePolling(){
     if(!this.polling) {
       console.log("ENABLED POLLING");
-      this.periodicUpdate(this);
       this.polling = true;
+      this.periodicUpdate(this);
     }
   }
 }

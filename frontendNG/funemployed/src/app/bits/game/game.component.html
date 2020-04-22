@@ -1,11 +1,21 @@
 <div class="game_screen">
     <div class="employer_slice">
-        <div class="employer_container">{{game.employer}}</div>
-        <div class="employer_actions_container">{{game.role}}</div>
+        <div class="employer_container">
+            {{game.employer}}
+        </div>
+        <div class="employer_actions_container">
+            {{game.role}}
+        </div>
     </div>
     <div class="employee_slice" *ngFor="let player of game.candidates">
-        <div class="employee_container">{{player.id}}</div>
-        <div class="employee_actions_container">{{player.display_items[0]}}</div>
+        <div class="employee_container">
+            {{player.id}}
+        </div>
+        <div class="employee_actions_container">
+            <div class="card" *ngFor="let card of player.display_items">
+                {{card}}
+            </div>
+        </div>
     </div>
 </div>
 <div class="card_slice">
@@ -17,7 +27,4 @@
     <div class="ready_container">
         <button (click)="toggleReady($event)">Ready</button>
     </div>
-</div>
-<div class="ready_container">
-    <button (click)="refresh($event)">degug::refresh</button>
 </div>

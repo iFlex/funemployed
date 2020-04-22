@@ -13,6 +13,9 @@ export class GameService {
   public cards: Object[];
   public ready: Boolean;
   public candidates: Object[];
+  public card_deck;
+  public job_deck;
+
   /*
   id:String (player_id)
   display_items: String[] (items to print in the candidate slice)
@@ -24,15 +27,19 @@ export class GameService {
     this.playerId = null;
     this.cards = [];
     this.ready = false;
+    
+    this.card_deck = {};
+    this.job_deck = {};
+
+    this.updatePeriodically(this);
   }
 
   public setup(gameId: String, playerId: String){
     this.gameId = gameId;
     this.playerId = playerId;
 
-    console.log("Sstarted the game("+this.gamecomm+") as:"+this.playerId);
+    console.log("Started the game("+this.gamecomm+") as:"+this.playerId);
     this.startTurn();
-    this.updatePeriodically(this);
   }
 
   public getGameId(){
@@ -43,12 +50,94 @@ export class GameService {
       return this.playerId;
   }
 
+  public update_job_deck(data){
+    for(let i in data){
+      let key = data[i].id;
+      this.job_deck[key] = data[i];
+    }
+  }
+
+  public update_card_deck(data){
+    for(let i in data){
+      let key = data[i].id;
+      this.card_deck[key] = data[i];
+    }
+  }
+
+  public getJobCardById(id){
+    return this.job_deck[parseInt(id)];
+  }
+
+  public getTraitCardById(id){
+    return this.card_deck[parseInt(id)];
+  }
+
   public updateState() {
     this.gamecomm.status(this.gameId).subscribe((data) => {
       console.log(data);
       this.employer = data['current_employer']['id'];
-      this.role = data['current_role']
+      this.role = data['current_role']['text']
+
+      this.candidates = [];
+      let players = data['players']
+
+      //ToDo: optimise - should be enouhg to do once
+      this.update_card_deck(data);
+      this.update_job_deck(data);
+
+      for(let key in players){
+        if(key == this.playerId){
+          //populate current player hand
+          
+          let cards = players[key]['traits'];
+          for(let tkey in cards){
+            
+            let found:Boolean = false;
+            for(let k in this.cards){
+              if(this.cards[k]['id'] == cards[tkey]['id']){
+                found = true;  
+              }
+            }
+
+            if(!found){
+              this.cards.push(cards[tkey])
+            }
+          }
+        }
+
+        if(key != this.employer ) {
+          //populate board with statuses
+          let player = players[key]
+          let ditems = []
+          if(player.ready == false){
+            ditems.push("Picking...");
+          } else if(player.candidate_cards.length > 0){
+            for(let k in player.candidate_cards){
+              //these are ids, should resolve to cards
+              let item = player.candidate_cards[k];
+              if(key == this.playerId){
+                let actual_card = this.getTraitCardById(item);
+                if(actual_card){
+                  item = actual_card.text;
+                }
+              }
+              ditems.push(item);
+            }
+          } else {
+            ditems.push("Ready");
+          }
+          this.candidates.push({id:key, display_items:ditems});
+        }
+      }
     });
+  }
+
+  public interview(){
+
+  }
+  
+  public declareWinner(){
+
   }
 
   public startTurn(){
@@ -58,7 +147,7 @@ export class GameService {
 
         this.candidates = [];
         this.employer = data['employer'];
-        this.role = data['role'];
+        this.role = data['role']['text'];
         
         let candidates = data['candidates'];
         for(let index in candidates){
@@ -76,8 +165,9 @@ export class GameService {
   }
 
   public updatePeriodically(ctx){
+    console.log("GAME_TICK");
     ctx.updateState();
-    setTimeout(()=>{ctx.updateState(ctx)}, 2000);
+    setTimeout(()=>{ctx.updatePeriodically(ctx)}, 2000);
   }
 
   public toggleReady(cards){
