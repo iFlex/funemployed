@@ -29,29 +29,7 @@ export class GameLobbyComponent implements OnInit {
       }
     }
 
-    setReady(event: any) {
-      console.log(event);
-      // this.currentPlayer.ready = !this.currentPlayer.ready;
-
-      // if (!this.currentPlayer.ready)
-      // {
-      //   this.roomReady = false;
-      //   return;
-      // }
-
-      // for(var i = 0; i < this.playerStatuses.length; i++)
-      // {
-      //   if(!this.playerStatuses[i].ready) {
-      //     this.roomReady = false;
-      //     return;
-      //   }
-      // }
-
-      this.roomReady = true;
-    }
-
     startGame() {
-      this.gameService.setup(this.gameLobby.gameId, this.gameLobby.playerId);
-      this.router.navigate(['/game']);  // define your component where you want to go
+      this.gameLobby.startGame();
     }
 }

@@ -32,6 +32,7 @@ export class GameService {
 
     console.log("Sstarted the game("+this.gamecomm+") as:"+this.playerId);
     this.startTurn();
+    this.updatePeriodically(this);
   }
 
   public getGameId(){
@@ -45,6 +46,8 @@ export class GameService {
   public updateState() {
     this.gamecomm.status(this.gameId).subscribe((data) => {
       console.log(data);
+      this.employer = data['current_employer']['id'];
+      this.role = data['current_role']
     });
   }
 
@@ -55,7 +58,7 @@ export class GameService {
 
         this.candidates = [];
         this.employer = data['employer'];
-        this.role = data['role']['text'];
+        this.role = data['role'];
         
         let candidates = data['candidates'];
         for(let index in candidates){
@@ -70,6 +73,11 @@ export class GameService {
           }
         }
       });
+  }
+
+  public updatePeriodically(ctx){
+    ctx.updateState();
+    setTimeout(()=>{ctx.updateState(ctx)}, 2000);
   }
 
   public toggleReady(cards){
