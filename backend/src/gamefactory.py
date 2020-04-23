@@ -15,7 +15,7 @@ class GameFactory:
 
 
 	def decks_from_json_file(self, path):
-		with open(path,"r") as f:
+		with open(path, "r", encoding="utf-8") as f:
 			jdata = json.loads(f.read())
 		return (Deck(jdata['jobs']), Deck(jdata['traits']))
 
@@ -25,6 +25,11 @@ class GameFactory:
 		if id in self.registry:
 			raise Exception("Game with this id already exists")
 		jobs, traits = self.decks_from_json_file(self.PATH_TO_DECK)
+		
+		#shuffle decks before starting
+		jobs.shuffle()
+		traits.shuffle()
+
 		self.registry[id] = Game(id, jobs, traits)
 		return self.registry[id]
 

@@ -1,6 +1,6 @@
 .game_screen {
     width: 100%;
-    height: 100ex;
+    height: 50ex;
     border: 1px solid;
     border-color: black;
     overflow: hidden;
@@ -33,7 +33,7 @@
 
 .employee_slice{
     width: 100%;
-    height: 10ex;
+    height: 5ex;
     border: 1px solid;
     border-color:blue;
     overflow: hidden;
@@ -89,6 +89,10 @@
     margin-right:2px;
     display: inline-block;
     white-space: nowrap;
+    border:2px solid;
+    border-color: green;
+    border-radius: 5px;
+    padding: 5px
 }
 
 .card:hover {

@@ -5,8 +5,8 @@ import { GameCommService } from '../../services/gamecomm.service';
   providedIn: 'root'
 })
 export class GameService {
-  private gameId: String;
-  private playerId: String; //this is the owner of the lobby
+  public gameId: String;
+  public playerId: String; //this is the owner of the lobby
   
   public role: String;
   public employer: String;

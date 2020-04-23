@@ -26,6 +26,7 @@ GET  /[game_id]                                              -> {"status":"ok"}
 class RestHttpHandler(BaseHTTPRequestHandler):
     game_factory = GameFactory()
     serve_from = "./"
+    encoding  = "utf-8"
 
     def decode_url(url):
         components = url.split('/')
@@ -182,7 +183,7 @@ class RestHttpHandler(BaseHTTPRequestHandler):
             return f.read()
         except Exception as e:
             print(e)
-            return bytearray("kthxbay", "utf-8")
+            return bytearray("kthxbay", RestHttpHandler.encoding)
 
 
     def do_GET(self):
@@ -205,10 +206,10 @@ class RestHttpHandler(BaseHTTPRequestHandler):
             self.send_header('Access-Control-Allow-Origin','*')
             self.send_header('Access-Control-Expose-Headers','Content-Type')
             self.send_header('Cache-Control','no-store, no-cache, must-revalidate')
-            self.send_header('Content-Type','application/json;charset=utf-8')
+            self.send_header('Content-Type','application/json;charset=%s' % RestHttpHandler.encoding)
             self.send_header('Response', status)
             self.end_headers()
-            self.wfile.write(bytearray(json.dumps(response_body), "utf-8")) 
+            self.wfile.write(bytearray(json.dumps(response_body), RestHttpHandler.encoding)) 
 
         else:
             self.send_response(200)
@@ -221,5 +222,5 @@ class RestHttpHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type','text/html')
         self.end_headers()
-        self.wfile.write(bytearray("hello_post_world","utf-8")) #Doesnt work
+        self.wfile.write(bytearray("hello_post_world", RestHttpHandler.encoding)) #Doesnt work
         return

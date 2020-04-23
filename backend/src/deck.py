@@ -12,7 +12,7 @@ class Deck:
 
 
 	def shuffle(self):
-		random.shuffle(cards)
+		random.shuffle(self.cards)
 
 
 	def size(self):
