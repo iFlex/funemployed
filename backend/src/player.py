@@ -37,9 +37,16 @@ class Player:
 		self.ready = ready
 
 
-	def clear_candidate_cards(self):
-		self.candidate_cards = []
+	def drop_candidate_cards(self):
+		self.candidate_cards = {}
 
+
+	def all_cards_revealed(self):
+		for key in self.candidate_cards:
+			if self.candidate_cards[key]['revealed'] != True:
+				return False
+		return True
+	
 
 	def set_candidate_cards(self, card_ids):
 		for card_id in card_ids:
@@ -49,13 +56,20 @@ class Player:
 				raise Exception("Player attempted to select card they don't own. Stop stealing!!!")
 		
 		for card_id in card_ids:
-			self.candidate_cards[card_id] = False
+			text = "None"
+			if card_id in self.traits:
+				text = self.traits[card_id]['text']
+
+			self.candidate_cards[card_id] = {"id":card_id, "text":text, "revealed":False}
 
 
 	def reveal_card(self, card_id):
+		card_id = int(card_id)
 		if card_id not in self.candidate_cards:
+			print(card_id)
+			print(self.candidate_cards)
 			raise Exception("Attempted to reveal card outside of selection of cards")
-		self.candidate_cards[card_id] = True
+		self.candidate_cards[card_id]['revealed'] = True
 
 
 	def get_candidate_cards(self):
@@ -68,10 +82,6 @@ class Player:
 
 	def get_won_cards(self):
 		return self.won
-
-
-	def get_trait_cards(self):
-		return self.traits
 
 
 	def add_trait_cards(self, cards):
@@ -106,7 +116,6 @@ class Player:
 			'won':[]
 		}
 
-		print(self.traits)
 		for trait in self.traits:
 		 	result['traits'].append(self.traits[trait])
 

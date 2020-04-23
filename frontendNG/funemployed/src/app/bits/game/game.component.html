@@ -8,12 +8,12 @@
         </div>
     </div>
     <div class="employee_slice" *ngFor="let player of game.candidates">
-        <div class="employee_container">
+        <div class="employee_container" id={{player.id}}  (click)="candidateClick($event)">
             {{player.id}}
         </div>
         <div class="employee_actions_container">
-            <div class="card" *ngFor="let card of player.display_items">
-                {{card}}
+            <div class="card" *ngFor="let card of player.display_items" id={{card.id}} (click)="revealCard($event)">
+                {{card.text}}
             </div>
         </div>
     </div>
@@ -27,4 +27,7 @@
     <div class="ready_container">
         <button (click)="toggleReady($event)">Ready</button>
     </div>
+</div>
+<div class="ready_container">
+    <button (click)="startTurn($event)">dbg::new_turn</button>
 </div>

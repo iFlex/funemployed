@@ -15,7 +15,9 @@ export class GameService {
   public candidates: Object[];
   public card_deck;
   public job_deck;
-
+  public players;
+  public interviewed;
+  public interviewInProgress: Boolean;
   /*
   id:String (player_id)
   display_items: String[] (items to print in the candidate slice)
@@ -50,25 +52,6 @@ export class GameService {
       return this.playerId;
   }
 
-  public update_job_deck(data){
-    let jobs = data['jobs']
-    for(let i in jobs){
-      let key = jobs[i].id;
-      this.job_deck[key] = jobs[i];
-    }
-  }
-
-  public update_card_deck(data){
-    let traits = data['traits'];
-    for(let i in traits){
-      let key = traits[i].id;
-      this.card_deck[key] = traits[i];
-    }
-    
-    console.log("CARDS");
-    console.log(this.card_deck);
-  }
-
   public getJobCardById(id){
     //return this.job_deck[parseInt(id)];
   }
@@ -84,98 +67,119 @@ export class GameService {
     //return this.card_deck[parseInt(id)];
   }
 
+  public intersect(setA, setB){
+    let aMap = {};
+    let bMap = {};
+    for(let i in setA){
+      aMap[setA[i]['id']] = true;
+    }
+    for(let i in setB){
+      let id = setB[i]['id']; 
+      bMap[id] = true;
+    }
+
+    //Add what's in B but not in A
+    for(let i in setB){
+      let id = setB[i]['id'];
+      if(aMap[id] == null){
+        setA.push(setB[i]);
+      } 
+    }
+
+    //Remove what's in A but not in B
+    for(let i  = 0; i < setA.length; ++i){
+      let id = setA[i]['id'];
+      if(bMap[id] == null){
+        setA.splice(i,1)
+        i--;
+      }
+    }
+  }
+
+
+  public updateCandidateCards(player, key){
+    //populate board with statuses
+    let ditems = []
+    
+    for(let kid in player.candidate_cards){
+      let card = player.candidate_cards[kid];
+      if(card.revealed == true || key == this.playerId){
+        ditems.push(card)
+      }
+    }
+    
+    if(ditems.length == 0) { 
+      if(player.ready == false) { 
+        ditems.push({id:-1,text:"..."});
+      } else {
+        ditems.push({id:-1,text:"Ready"});
+      }
+    }
+    this.candidates.push({id:key, display_items:ditems});
+  }
+
   public updateState() {
     this.gamecomm.status(this.gameId).subscribe((data) => {
       console.log(data);
       this.employer = data['current_employer']['id'];
       this.role = data['current_role']['text']
+      this.players = data['players'];
+      this.interviewed = data['players_interviewed'];
+      this.interviewInProgress = data['interview_in_progress'];
 
       this.candidates = [];
       let players = data['players']
 
-      //ToDo: optimise - should be enouhg to do once
-      //this.update_card_deck(data);
-      //this.update_job_deck(data);
-
       for(let key in players){
         if(key == this.playerId){
-          //populate current player hand
-          
-          let cards = players[key]['traits'];
-          for(let tkey in cards){
-            
-            let found:Boolean = false;
-            for(let k in this.cards){
-              if(this.cards[k]['id'] == cards[tkey]['id']){
-                found = true;  
-              }
-            }
-
-            if(!found){
-              this.cards.push(cards[tkey])
-            }
-          }
+          this.ready = players[key]['ready'];
+          this.intersect(this.cards, players[key]['traits']);
         }
-
         if(key != this.employer ) {
-          //populate board with statuses
-          let player = players[key]
-          let ditems = []
-          if(player.ready == false){
-            ditems.push("Picking...");
-          } else if(Object.keys(player.candidate_cards).length > 0) {
-            for(let kid in player.candidate_cards){
-              //these are ids, should resolve to cards
-              let revealed = player.candidate_cards[kid];
-              if(key == this.playerId || revealed){
-                let actual_card = this.getTraitCardById(kid);
-                if(actual_card){
-                  ditems.push(actual_card['text']);
-                } else {
-                  ditems.push(kid);
-                }
-              }
-            }
-          } 
-          
-          if(ditems.length == 0) {
-            ditems.push("Ready");
-          }
-          this.candidates.push({id:key, display_items:ditems});
+          this.updateCandidateCards(players[key], key);
         }
       }
     });
   }
 
-  public interview(){
+  public allPlayersPresented(){
+    return Object.keys(this.interviewed).length == Object.keys(this.players).length - 1;
+  }
 
+  public isInterviewInProgress(){
+    return this.interviewInProgress;
+  }
+
+  public startInterview(playerId){
+    this.gamecomm.startInterview(this.gameId, playerId).subscribe((data) => {
+      if(data['success'] == true){
+        console.log(data);
+      }
+    })
+  }
+
+  public revealCard(cardId){
+    this.gamecomm.revealCard(this.gameId, this.playerId, cardId).subscribe((data) => {
+      if(data['success'] == true){
+        console.log(data);
+      }
+    })
+  }
+
+  public endInterview(){
+    this.gamecomm.endInterview(this.gameId).subscribe((data) => {
+      console.log(data);
+    })
   }
   
-  public declareWinner(){
-
+  public declareWinner(id){
+    this.gamecomm.declareTurnWinner(this.gameId, id).subscribe((data) => {
+      console.log(data);
+    })
   }
 
   public startTurn(){
       this.gamecomm.newTurn(this.gameId).subscribe((data)=>{
-        console.log("START_TURN");
-        console.log(data);
-
-        this.candidates = [];
-        this.employer = data['employer'];
-        this.role = data['role']['text'];
-        
-        let candidates = data['candidates'];
-        for(let index in candidates){
-          if(candidates[index]['player'] == this.playerId){
-            for(let jdex in candidates[index]['new_cards']){
-              this.cards.push(candidates[index]['new_cards'][jdex]);
-            }
-          }
-          
-          if(candidates[index]['player'] != this.employer){
-            this.candidates.push({id:candidates[index]['player'],display_items:["Not Ready"]})
-          }
-        }
       });
   }
 
@@ -189,16 +193,10 @@ export class GameService {
     if(this.ready == false){
       this.gamecomm.readyUp(this.gameId, this.playerId, cards).subscribe((data) => {
         console.log(data);
-        if(data['status'] == 'ok'){
-          this.ready = true;
-        }
       })
     } else {
       this.gamecomm.unready(this.gameId, this.playerId).subscribe((data) => {
         console.log(data);
-        if(data['status'] == 'ok'){
-          this.ready = false;
-        }
       })
     }
   }

@@ -204,14 +204,18 @@ class Game:
 
 
 	def reveal_card(self, player_id, card_id):
-		if self.interview_in_progress == True:
-			return {"error":"invalid_state","message":"An interview is already in progress, please close it to start a new one"}
+		if self.interview_in_progress != True:
+			return {"error":"invalid_state","message":"No interview in progress, please start one to reveal cards"}
 		if self.current_candidate.get_id() != player_id:
 			return {"error":"invalid_action","message":"Can not reveal a card while not being interviewed"}
 
 		try:
 			self.current_candidate.reveal_card(card_id)
+			if self.current_candidate.all_cards_revealed():
+				return self.end_interview()
+			return {"status":"success"}
 		except Exception as e:
+			print(e)
 			return {"error":"failure","message":"Failed to reveal card"}		
 
 
@@ -219,6 +223,7 @@ class Game:
 		if self.interview_in_progress == True:
 			self.interview_in_progress = False
 			self.players_interviewed[self.current_candidate.get_id()] = True
+
 			return {"player_id":self.current_candidate.get_id(), "card_ids":self.current_candidate.get_candidate_cards()}
 
 		return {"error":"invalid_state","message":"No interview in progress"}
@@ -233,7 +238,14 @@ class Game:
 			hired = self.retrieve_player(hired_player_id)
 			hired.add_won_job_card(self.current_role)
 
+			#drop candidate cards
+			for pid in self.players_interviewed:
+				player = self.players[pid]
+				player.drop_candidate_cards()
+
 			self.turn_in_progress = False
+			self.players_interviewed = {}
+			self.ready_players_count = 0
 			return {"status":"success", "hired":hired_player_id, "card":self.current_role}
 
 		return {"error":"invalid_request","message":"No turn in progress, cannot end an inexistent turn"}

@@ -44,4 +44,24 @@ export class GameCommService {
     let url = this.endpoint + "/" + gameId + "/player-unready/" + playerId;
     return this.http.get(url);
   }
+
+  startInterview(gameId, playerId){
+    let url = this.endpoint + "/" + gameId + "/interview-start/" + playerId;
+    return this.http.get(url);
+  }
+
+  revealCard(gameId, playerId, cardId){
+    let url = this.endpoint + "/" + gameId + "/interview-reveal/" + playerId + "/" + cardId;
+    return this.http.get(url);
+  }
+
+  endInterview(gameId){
+    let url = this.endpoint + "/" + gameId + "/interview-end";
+    return this.http.get(url);
+  }
+
+  declareTurnWinner(gameId, playerId) {
+    let url = this.endpoint + "/" + gameId + "/turn-end/" + playerId;
+    return this.http.get(url);
+  }
 }

@@ -22,6 +22,23 @@ export class GameComponent implements OnInit {
 
     }
 
+    startTurn(event){
+        this.game.startTurn();
+    }
+    
+    candidateClick(event) {
+        let id = event.target.id;
+        if(this.game.allPlayersPresented()){
+            this.game.declareWinner(id);
+        } else {
+            if(!this.game.isInterviewInProgress()){
+                this.game.startInterview(id);
+            } else {
+                alert("Be patient... pls");
+            }
+        }
+    }
+
     toggleReady(event){
         this.game.toggleReady(this.getSelectedCards());
     }
@@ -33,6 +50,14 @@ export class GameComponent implements OnInit {
         }
 
         return selected;
+    }
+
+    revealCard(event){
+        console.log("reveal_card");
+        console.log(event);
+        let id = event.target.id;
+        console.log(id);
+        this.game.revealCard(id);
     }
 
     selectionOn(target){

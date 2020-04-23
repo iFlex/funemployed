@@ -16,6 +16,7 @@ POST /[game_id]/player-ready
     BODY:      [card_id_1, card_id_2, card_id_3] 
 GET  /[game_id]/player-unready                               -> {"status": "ok"}
 GET  /[game_id]/interview-start/[player-id]                  -> {"player_id": "test", "card_ids": ["selected_card_id_1","selected_card_id_2","selected_card_id_3"]}
+GET  /[game_id]/interview-reveal/[player-id]/[card-id]       -> {"status":"ok"}
 GET  /[game_id]/interview-end                                -> {"player_id": "test", "card_ids": ["selected_card_id_1","selected_card_id_2","selected_card_id_3"]}
 GET  /[game_id]/turn-end/[hired-player-id]                   -> {"status":"success", "hired":"hired_player_id", "card":{"id":0, "card_text"}}
 GET  /[game_id]/game-end                                     -> {"status":"ok"}  
@@ -55,6 +56,7 @@ class RestHttpHandler(BaseHTTPRequestHandler):
                 try:
                     return game.add_player(Player(parameters[0], {}))
                 except Exception as e:
+                    print(e)
                     return {"error":"failure","message":str(e)}
 
             if command == 'player-remove':
@@ -64,6 +66,7 @@ class RestHttpHandler(BaseHTTPRequestHandler):
                     game.remove_player(parameters[0])
                     return {'status':'ok'}
                 except Exception as e:
+                    print(e)
                     return {"error":"failure","message":str(e)}
             
             if command == 'player-ready':
@@ -80,6 +83,7 @@ class RestHttpHandler(BaseHTTPRequestHandler):
                         print(body)
                     return game.player_ready(parameters[0], body)
                 except Exception as e:
+                    print(e)
                     return {"error":"failure","message":str(e)}
 
             if command == 'player-unready':
@@ -87,6 +91,7 @@ class RestHttpHandler(BaseHTTPRequestHandler):
                     game.player_unready(parameters[0])
                     return {"status":"ok"}
                 except Exception as e:
+                    print(e)
                     return {"error":"failure","message":str(e)}
 
             if command == 'player-shuffle':
@@ -99,6 +104,7 @@ class RestHttpHandler(BaseHTTPRequestHandler):
                 try:
                     return game.start_turn()
                 except Exception as e:
+                    print(e)
                     return {"error":"failure","message":str(e)}
 
             if command == 'interview-start':
@@ -107,12 +113,23 @@ class RestHttpHandler(BaseHTTPRequestHandler):
                 try:
                     return game.start_interview(parameters[0])
                 except Exception as e:
+                    print(e)
+                    return {"error":"failure","message":str(e)}
+
+            if command == 'interview-reveal':
+                if not (len(parameters) == 2):
+                    return {"error":"invalid_parameter","message":"Please provide a player-id and card-id in the URL"}
+                try:
+                    return game.reveal_card(parameters[0], parameters[1])
+                except Exception as e:
+                    print(e)
                     return {"error":"failure","message":str(e)}
 
             if command == 'interview-end':
                 try:
                     return game.end_interview()
                 except Exception as e:
+                    print(e)
                     return {"error":"failure","message":str(e)}
 
             if command == 'turn-end':
@@ -121,18 +138,21 @@ class RestHttpHandler(BaseHTTPRequestHandler):
                 try:
                     return game.end_turn(parameters[0])
                 except Exception as e:
+                    print(e)
                     return {"error":"failure","message":str(e)}
 
             if command == 'game-end':
                 try:
                     return game.end_game()
                 except Exception as e:
+                    print(e)
                     return {"error":"failure","message":str(e)}
 
             if command == None:
                 try:
                     return game.to_json_dict()
                 except Exception as e:
+                    print(e)
                     return {"error":"failure","message":str(e)}
 
         return {"error":"invalid_request", "message":"request did not follow the correct URL convention"}
@@ -176,8 +196,10 @@ class RestHttpHandler(BaseHTTPRequestHandler):
             response_body = self.handle_request(game_id, command, parameters, None)
 
             status = 200
+
             if 'error' in response_body:
                 status = 500
+                print(response_body)
 
             self.send_response(status)
             self.send_header('Access-Control-Allow-Origin','*')
