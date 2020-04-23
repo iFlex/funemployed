@@ -51,25 +51,37 @@ export class GameService {
   }
 
   public update_job_deck(data){
-    for(let i in data){
-      let key = data[i].id;
-      this.job_deck[key] = data[i];
+    let jobs = data['jobs']
+    for(let i in jobs){
+      let key = jobs[i].id;
+      this.job_deck[key] = jobs[i];
     }
   }
 
   public update_card_deck(data){
-    for(let i in data){
-      let key = data[i].id;
-      this.card_deck[key] = data[i];
+    let traits = data['traits'];
+    for(let i in traits){
+      let key = traits[i].id;
+      this.card_deck[key] = traits[i];
     }
+    
+    console.log("CARDS");
+    console.log(this.card_deck);
   }
 
   public getJobCardById(id){
-    return this.job_deck[parseInt(id)];
+    //return this.job_deck[parseInt(id)];
   }
 
   public getTraitCardById(id){
-    return this.card_deck[parseInt(id)];
+    let idint = parseInt(id)
+    for(let key in this.cards){
+      if(idint == this.cards[key]['id']){
+        return this.cards[key];
+      }
+    }
+    return {id:-1,'text':''}
+    //return this.card_deck[parseInt(id)];
   }
 
   public updateState() {
@@ -82,8 +94,8 @@ export class GameService {
       let players = data['players']
 
       //ToDo: optimise - should be enouhg to do once
-      this.update_card_deck(data);
-      this.update_job_deck(data);
+      //this.update_card_deck(data);
+      //this.update_job_deck(data);
 
       for(let key in players){
         if(key == this.playerId){
@@ -111,19 +123,22 @@ export class GameService {
           let ditems = []
           if(player.ready == false){
             ditems.push("Picking...");
-          } else if(player.candidate_cards.length > 0){
-            for(let k in player.candidate_cards){
+          } else if(Object.keys(player.candidate_cards).length > 0) {
+            for(let kid in player.candidate_cards){
               //these are ids, should resolve to cards
-              let item = player.candidate_cards[k];
-              if(key == this.playerId){
-                let actual_card = this.getTraitCardById(item);
+              let revealed = player.candidate_cards[kid];
+              if(key == this.playerId || revealed){
+                let actual_card = this.getTraitCardById(kid);
                 if(actual_card){
-                  item = actual_card.text;
+                  ditems.push(actual_card['text']);
+                } else {
+                  ditems.push(kid);
                 }
               }
-              ditems.push(item);
             }
-          } else {
+          } 
+          
+          if(ditems.length == 0) {
             ditems.push("Ready");
           }
           this.candidates.push({id:key, display_items:ditems});

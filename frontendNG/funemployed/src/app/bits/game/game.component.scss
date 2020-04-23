@@ -90,8 +90,13 @@
     display: inline-block;
     white-space: nowrap;
 }
+
 .card:hover {
     background-color: yellow;
+}
+
+.card-presented{
+    background-color: gray;
 }
 
 button {

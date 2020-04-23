@@ -13,7 +13,7 @@ class Player:
 		self.details = details
 		self.traits = {}
 		self.won = {}
-		self.candidate_cards = []
+		self.candidate_cards = {}
 		self.ready = False
 
 
@@ -47,7 +47,15 @@ class Player:
 				print(self.traits)
 				print(card_id)
 				raise Exception("Player attempted to select card they don't own. Stop stealing!!!")
-		self.candidate_cards = card_ids
+		
+		for card_id in card_ids:
+			self.candidate_cards[card_id] = False
+
+
+	def reveal_card(self, card_id):
+		if card_id not in self.candidate_cards:
+			raise Exception("Attempted to reveal card outside of selection of cards")
+		self.candidate_cards[card_id] = True
 
 
 	def get_candidate_cards(self):

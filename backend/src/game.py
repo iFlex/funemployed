@@ -203,6 +203,18 @@ class Game:
 		return {"player_id":self.current_candidate.get_id(), "card_ids":self.current_candidate.get_candidate_cards()}
 
 
+	def reveal_card(self, player_id, card_id):
+		if self.interview_in_progress == True:
+			return {"error":"invalid_state","message":"An interview is already in progress, please close it to start a new one"}
+		if self.current_candidate.get_id() != player_id:
+			return {"error":"invalid_action","message":"Can not reveal a card while not being interviewed"}
+
+		try:
+			self.current_candidate.reveal_card(card_id)
+		except Exception as e:
+			return {"error":"failure","message":"Failed to reveal card"}		
+
+
 	def end_interview(self):
 		if self.interview_in_progress == True:
 			self.interview_in_progress = False

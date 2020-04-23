@@ -64,7 +64,7 @@ export class GameComponent implements OnInit {
         this.selectedDivs.push(event.target);
         this.selectionOn(event.target);
     }
-
+    
     refresh(event){
         this.game.updateState();
     }
