@@ -1,7 +1,9 @@
 from gamefactory import GameFactory
 from http.server import BaseHTTPRequestHandler
+from http.cookies import SimpleCookie
 from player import Player
 import json
+import base64
 import mimetypes
 
 '''
@@ -23,10 +25,15 @@ GET  /[game_id]/game-end                                     -> {"status":"ok"}
 GET  /[game_id]                                              -> {"status":"ok"}
 '''
 
+'''
+    when user cookies are enabled - a base64 json encoded string of {userId:blalba}
+'''
+
 class RestHttpHandler(BaseHTTPRequestHandler):
     game_factory = GameFactory()
     serve_from = "./"
     encoding  = "utf-8"
+    cookies_enabled = False
 
     def decode_url(url):
         components = url.split('/')
@@ -39,6 +46,20 @@ class RestHttpHandler(BaseHTTPRequestHandler):
             parameters = components[3:]
         
         return (game_id, command, parameters)
+
+
+    
+    def check_cookie(self):
+        pass
+
+
+    def encode_cookie(self, data):
+        json = json.dumps(data)
+        b64 = base64.b64encode(json)
+        return ("Set-Cookie","cookie=%s; Domain=localhost;" % b64);
+
+    def decode_cookie(self, raw_data):
+        pass
 
 
     def handle_request(self, game_id, command, parameters, body):
@@ -188,12 +209,19 @@ class RestHttpHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         print(self.path)
+        cookies = SimpleCookie(self.headers.get('Cookie'))
+        print("Cookies:")
+        print(cookies)
+
         api_pattern = "/api/";
         #very simplistic way of choosing when to server a file and when to server the API functions
-        if api_pattern in self.path :
+        if api_pattern in self.path:
             indexof = self.path.index(api_pattern)
             game_id, command, parameters = RestHttpHandler.decode_url(self.path[indexof + len(api_pattern) - 1:])
             
+            #if game_id doesn't match   - 
+            #if player_id doesn't match -
+
             response_body = self.handle_request(game_id, command, parameters, None)
 
             status = 200

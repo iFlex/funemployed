@@ -1,102 +1,137 @@
 .game_screen {
-    width: 100%;
-    height: 50ex;
-    border: 1px solid;
-    border-color: black;
-    overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    overflow: auto;
+    background-color: white;
 }
+
+.fitparent{
+    width:100%;
+    height:100%;
+    margin: 20px;
+}
+
+.game_subscreen {
+    width: 100%;
+    height: 60%;
+    display: inline-block;
+    white-space: nowrap;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
 .employer_slice{
     width: 100%;
-    height: 10ex;
-    border: 1px solid;
-    border-color: green;
-    overflow: hidden;
+    height: 20%;
+    
     display: inline-block;
     white-space: nowrap;
+    overflow: hidden;
 }
+
 .employer_container{
     width: 25%;
-    height: inherit;
-    border: 1px solid;
-    border-color: pink;
+    height: 100%;
     display: inline-block;
-    white-space: nowrap;
+    background-color: #82e0aa;
+    overflow: hidden;
+    font-weight:bold;
 }
+
 .employer_actions_container {
-    width:75%;
-    height: inherit;
-    border: 1px solid;
-    border-color: red;
+    width:50%;
+    height: 100%;
+    background-color: #82e0aa;
     display: inline-block;
-    white-space: nowrap;
+    overflow: hidden;
+    font-weight:bold;
+}
+
+.utils {
+    width: 25%;
+    height: 100%;
+    background-color: #82e0aa;
+    display: inline-block;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.util_action {
+    width: 128px;
+    height: 32px;
 }
 
 .employee_slice{
     width: 100%;
-    height: 5ex;
-    border: 1px solid;
-    border-color:blue;
+    height: 20%;
     overflow: hidden;
-    display: inline-block;
     white-space: nowrap;
+    padding: 5px;
 }
+
 .employee_container{
     width: 25%;
-    height: inherit;
-    border: 1px solid;
-    border-color: turquoise;
+    height: 100%;
+    border-radius: 10px;
+    background-color:  #5499c7;
     display: inline-block;
     white-space: nowrap;
+
+    padding: 10px;
 }
+
+.employee_container:hover {
+    transform: scale(0.9);
+}
+
 .employee_actions_container {
     width:75%;
-    height: inherit;
-    border: 1px solid;
-    border-color: gold;
+    height: 100%;
     display: inline-block;
     white-space: nowrap;
 }
 .card_slice {
     width: 100%;
-    height: 20ex;
-    border: 1px solid;
-    border-color: black;
+    height: 20%;
     overflow: hidden;
     display: inline-block;
     white-space: nowrap;
+    background:  #cacfd2;
 }
 .card_deck{
-    width:90%;
-    height: inherit;
-    border: 1px solid;
-    border-color: blueviolet;
-    overflow: hidden;
+    width: 90%;
+    height: 100%;
+    overflow-x: scroll;
+    overflow-y: hidden;
     display: inline-block;
     white-space: nowrap;
 }
 .ready_container {
     width:10%;
-    height: inherit;
-    border: 1px solid;
-    border-color: red;
+    height: 100%;
     overflow: hidden;
     display: inline-block;
     white-space: nowrap;
 }
+
 .card {
     height:100%;
-    margin-left:2px;
-    margin-right:2px;
     display: inline-block;
-    white-space: nowrap;
-    border:2px solid;
-    border-color: green;
     border-radius: 5px;
-    padding: 5px
+    background-color:   #82e0aa ;
+    padding: 10px;
+    margin: 5px;
 }
 
 .card:hover {
-    background-color: yellow;
+    transform: scale(0.9);
+}
+
+.card-selected {
+    background-color: #1abc9c;
 }
 
 .card-presented{
@@ -104,7 +139,9 @@
 }
 
 button {
-    width: 100%;
-    height: inherit;
+    width: 80%;
+    height: 80%;
+    border-radius: 15px;
+    background-color:  #cd6155;
     margin: 5px;
 }

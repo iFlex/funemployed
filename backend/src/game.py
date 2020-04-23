@@ -58,12 +58,19 @@ class Game:
 	def add_player(self, player):	
 		id = player.get_id()
 		if id in self.players:
-			raise Exception("Attempted to add duplicate player record")
+			pass #raise Exception("Attempted to add duplicate player record")
+		else:
+			self.players[id] = player
+			self.player_order.append(id)
+		
+		#replenish cards
+		try:
+			new_cards = self.replenish_player_cards(player)
+		except Exception as e:
+			print(e)
+			raise Exception("Failure to replenish new player's cards")
 
-		self.players[id] = player
-		self.player_order.append(id)
-
-		return {"token":player.get_token()}
+		return {"token":player.get_token(),"cards":new_cards}
 
 	#ToDo: handle exit of interviewer, current candidate, interviewed candidate, not interviewed candidate
 	def remove_player(self, player_id):
@@ -142,7 +149,7 @@ class Game:
 
 	def player_unready(self, player_id):
 		player = self.retrieve_player(player_id)
-		player.clear_candidate_cards()
+		player.drop_candidate_cards()
 		
 		if player.is_ready() == True:
 			self.ready_players_count -= 1

@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { GameCommService } from '../../services/gamecomm.service';
+import { VirtualTimeScheduler } from 'rxjs';
+import { runInThisContext } from 'vm';
 
 @Injectable({
   providedIn: 'root'
@@ -7,9 +9,11 @@ import { GameCommService } from '../../services/gamecomm.service';
 export class GameService {
   public gameId: String;
   public playerId: String; //this is the owner of the lobby
-  
+  public wins:Array<Object>;
+
   public role: String;
   public employer: String;
+
   public cards: Object[];
   public ready: Boolean;
   public candidates: Object[];
@@ -18,6 +22,7 @@ export class GameService {
   public players;
   public interviewed;
   public interviewInProgress: Boolean;
+  public current_candidate;
   /*
   id:String (player_id)
   display_items: String[] (items to print in the candidate slice)
@@ -29,7 +34,7 @@ export class GameService {
     this.playerId = null;
     this.cards = [];
     this.ready = false;
-    
+    this.wins = [];
     this.card_deck = {};
     this.job_deck = {};
 
@@ -41,7 +46,7 @@ export class GameService {
     this.playerId = playerId;
 
     console.log("Started the game("+this.gamecomm+") as:"+this.playerId);
-    this.startTurn();
+    //this.startTurn();
   }
 
   public getGameId(){
@@ -115,28 +120,34 @@ export class GameService {
         ditems.push({id:-1,text:"Ready"});
       }
     }
-    this.candidates.push({id:key, display_items:ditems});
+    this.candidates.push({id:key, display_items:ditems, wins: player.won.length});
   }
 
   public updateState() {
     this.gamecomm.status(this.gameId).subscribe((data) => {
       console.log(data);
-      this.employer = data['current_employer']['id'];
-      this.role = data['current_role']['text']
+      try {
+        this.employer = data['current_employer']['id'];
+        this.role = data['current_role']['text']
+      } catch(e) {
+        console.log(e);
+      }
+
       this.players = data['players'];
       this.interviewed = data['players_interviewed'];
       this.interviewInProgress = data['interview_in_progress'];
+      this.current_candidate = data['current_candidate'];
 
       this.candidates = [];
-      let players = data['players']
-
-      for(let key in players){
+      
+      for(let key in this.players){
         if(key == this.playerId){
-          this.ready = players[key]['ready'];
-          this.intersect(this.cards, players[key]['traits']);
+          this.ready = this.players[key]['ready'];
+          this.wins = this.players[key]['won'];
+          this.intersect(this.cards, this.players[key]['traits']);
         }
         if(key != this.employer ) {
-          this.updateCandidateCards(players[key], key);
+          this.updateCandidateCards(this.players[key], key);
         }
       }
     });
@@ -154,7 +165,10 @@ export class GameService {
     this.gamecomm.startInterview(this.gameId, playerId).subscribe((data) => {
       if(data['success'] == true){
         console.log(data);
+        alert("Interview Started:" + playerId);
       }
+    },(error) => {
+      alert(JSON.stringify(error))
     })
   }
 
@@ -163,23 +177,32 @@ export class GameService {
       if(data['success'] == true){
         console.log(data);
       }
+    },(error) => {
+      alert(JSON.stringify(error))
     })
   }
 
   public endInterview(){
     this.gamecomm.endInterview(this.gameId).subscribe((data) => {
       console.log(data);
+    },(error) => {
+      alert(JSON.stringify(error))
     })
   }
   
   public declareWinner(id){
     this.gamecomm.declareTurnWinner(this.gameId, id).subscribe((data) => {
       console.log(data);
+      alert("Winner:"+id);
+    },(error) => {
+      alert(JSON.stringify(error))
     })
   }
 
   public startTurn(){
       this.gamecomm.newTurn(this.gameId).subscribe((data)=>{
+      },(error) => {
+        alert(JSON.stringify(error))
       });
   }
 
@@ -193,10 +216,14 @@ export class GameService {
     if(this.ready == false){
       this.gamecomm.readyUp(this.gameId, this.playerId, cards).subscribe((data) => {
         console.log(data);
+      },(error) => {
+        alert(JSON.stringify(error))
       })
     } else {
       this.gamecomm.unready(this.gameId, this.playerId).subscribe((data) => {
         console.log(data);
+      },(error) => {
+        alert(JSON.stringify(error))
       })
     }
   }

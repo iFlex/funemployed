@@ -1,7 +1,6 @@
 import { Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import { GameService } from './game.service';
-import { GameCommService } from '../../services/gamecomm.service';
 
 
 @Component({
@@ -60,12 +59,12 @@ export class GameComponent implements OnInit {
         this.game.revealCard(id);
     }
 
-    selectionOn(target){
-        target.style.backgroundColor = "blue";
+    selectionOn(target, className){
+        target.classList.add(className);
     }
     
-    selectionOff(target){
-        target.style.backgroundColor = "white";
+    selectionOff(target, className){
+        target.classList.remove(className);
     }
 
     toggleCard(event){
@@ -73,7 +72,7 @@ export class GameComponent implements OnInit {
             let item = this.selectedDivs[i];
 
             if(item['id'] == event.target.id){
-                this.selectionOff(event.target);
+                this.selectionOff(event.target, "card-selected");
                 this.selectedDivs.splice(i,1);
                 console.log("Already in selection");
                 return;
@@ -83,11 +82,11 @@ export class GameComponent implements OnInit {
         if(this.selectedDivs.length == 3) {
             console.log("Cleaning up excess");
             let popped = this.selectedDivs.shift();
-            this.selectionOff(popped);
+            this.selectionOff(popped, "card-selected");
         }
 
         this.selectedDivs.push(event.target);
-        this.selectionOn(event.target);
+        this.selectionOn(event.target, "card-selected");
     }
     
     refresh(event){

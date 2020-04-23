@@ -1,34 +1,42 @@
-<h2>{{game.playerId}} - {{game.gameId}}</h2>
-<div class="game_screen">
+<dev class="game_screen">
     <div class="employer_slice">
         <div class="employer_container">
-            {{game.employer}}
+            <div class="fitparent">🕵️ {{game.employer}}</div>
         </div>
         <div class="employer_actions_container">
-            {{game.role}}
+            <div class="fitparent">💼 {{game.role}}</div>
         </div>
-    </div>
-    <div class="employee_slice" *ngFor="let player of game.candidates">
-        <div class="employee_container" id={{player.id}}  (click)="candidateClick($event)">
-            {{player.id}}
-        </div>
-        <div class="employee_actions_container">
-            <div class="card" *ngFor="let card of player.display_items" id={{card.id}} (click)="revealCard($event)">
-                {{card.text}}
+        <div class="utils">
+            <div  class="fitparent">
+                <h5>🧍 {{game.playerId}} 👑{{game.wins}}</h5>
+                <h5>🕹️ {{game.gameId}}</h5>
+                <div class="util_action">
+                    <button (click)="startTurn($event)">New Turn</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
-<div class="card_slice">
-    <div class="card_deck">
-        <div class="card" *ngFor="let card of game.cards" id="{{card.id}}" (click)="toggleCard($event)">
-            {{card.text}}
+    <div class="game_subscreen">
+        <div class="employee_slice" *ngFor="let player of game.candidates">
+            <div class="employee_container" id={{player.id}}  (click)="candidateClick($event)">
+                👔{{player.id}}
+                 <div>👑{{player.wins}}</div>
+            </div>
+            <div class="employee_actions_container">
+                <div class="card" *ngFor="let card of player.display_items" id={{card.id}} (click)="revealCard($event)">
+                    {{card.text}}
+                </div>
+            </div>
         </div>
     </div>
-    <div class="ready_container">
-        <button (click)="toggleReady($event)">Ready</button>
+    <div class="card_slice">
+        <div class="card_deck">
+            <div class="card" *ngFor="let card of game.cards" id="{{card.id}}" (click)="toggleCard($event)">
+                {{card.text}}
+            </div>
+        </div>
+        <div class="ready_container">
+            <button (click)="toggleReady($event)">Ready</button>
+        </div>
     </div>
-</div>
-<div class="ready_container">
-    <button (click)="startTurn($event)">dbg::new_turn</button>
-</div>
+</dev>
