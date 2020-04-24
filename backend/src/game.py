@@ -83,7 +83,7 @@ class Game:
 
 		#interviewer exited
 		if player_id == self.current_employer.get_id():
-			pass
+			self.cancel_turn()
 
 
 		if self.players[player_id].is_ready() == True:
