@@ -228,8 +228,11 @@ export class GameService {
   }
 
   public leave(){
-    this.gamecomm.leaveGame(this.gameId, this.playerId)
-    this.router.navigate(['/joingame']);
+    this.gamecomm.leaveGame(this.gameId, this.playerId).subscribe((data) =>{
+      this.router.navigate(['/joingame']);
+    }, (error) => {
+      this.router.navigate(['/joingame']);
+    })
   }
 
   public printGameState(){
