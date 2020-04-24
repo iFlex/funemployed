@@ -1,17 +1,20 @@
 <div class="game_screen">
     <div class="employer_slice">
         <div class="employer_container">
-            <div class="fitparent">🕵️ {{game.employer}}</div>
+            <div class="fitparent"><h2>🕵️ {{game.employer}}</h2></div>
         </div>
         <div class="employer_actions_container">
-            <div class="fitparent">💼 {{game.role}}</div>
+            <div class="fitparent"><h2>💼 {{game.role}}</h2></div>
         </div>
         <div class="utils" [ngClass]="{'interviewing': game.isCurrentCandidate(game.playerId)}">
             <div  class="fitparent">
-                <h5>🧍 {{game.playerId}} 👑 {{game.wins}}</h5>
-                <h5>🕹️ {{game.gameId}}</h5>
+                <h3>{{game.playerId}}</h3>
+                <h5>👑 {{game.wins}} 🕹️ {{game.gameId}}</h5>
                 <div class="util_action">
                     <button (click)="startTurn($event)">New Turn</button>
+                </div>
+                <div class="util_action">
+                    <button (click)="leaveGame($event)">Leave Game</button>
                 </div>
             </div>
         </div>

@@ -89,6 +89,10 @@ export class GameComponent implements OnInit {
         this.selectionOn(event.target, "card-selected");
     }
     
+    leaveGame(event){
+        this.game.leave();
+    }
+
     refresh(event){
         this.game.updateState();
     }
