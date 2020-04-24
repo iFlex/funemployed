@@ -157,7 +157,7 @@ class Game:
 
 
 	def player_unready(self, player_id):
-		if len(players_interviewed) > 0:
+		if len(self.players_interviewed) > 0:
 			return {"error":"invalid_request","message":"Interview process already started"}
 
 		player = self.retrieve_player(player_id)
@@ -176,7 +176,7 @@ class Game:
 			return {"error":"invalid_request","message":"No cards provided"}
 		if not (len(card_ids) == Game.MAX_INTERVIEW_CARD_COUNT):
 			return {"error":"invalid_request","message":"Player has selected %d cards for an interview, they should have chosen %d" % (Game.MAX_INTERVIEW_CARD_COUNT, len(card_ids))}
-		if len(players_interviewed) > 0:
+		if len(self.players_interviewed) > 0:
 			return {"error":"invalid_request","message":"Interview process already started"}
 
 		player.set_candidate_cards(card_ids)
