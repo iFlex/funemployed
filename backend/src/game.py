@@ -78,13 +78,14 @@ class Game:
 			raise Exception("Attempted to remove inexistent player")
 
 		#interviewee exited
-		if self.current_candidate != None and player_id == self.current_candidate.get_id():
+		if self.interview_in_progress == True and player_id == self.current_candidate.get_id():
+			print("Interviewee left in the middle of the intervie... I'm sad...")
 			self.end_interview()
 
 		#interviewer exited
-		if player_id == self.current_employer.get_id():
+		if self.current_employer != None and player_id == self.current_employer.get_id():
+			print("Current Employer Left...")
 			self.cancel_turn()
-
 
 		if self.players[player_id].is_ready() == True:
 			self.ready_players_count -= 1
@@ -127,9 +128,13 @@ class Game:
 		return candidate_cards
 
 
-	def start_turn(self):
-		if self.turn_in_progress == True or self.interview_in_progress == True:
+	def start_turn(self, force=False):
+		if force == False and (self.turn_in_progress == True or self.interview_in_progress == True):
 			raise Exception("Attempted to start a new turn while a turn or interview is in progress")
+
+		if len(self.players) < 3:
+			#can't really play with such a smol number of peeps
+			return {"error":"insufficient_players","message":"Not enought players left"}
 
 		self.pick_next_employer()
 		self.current_role     = self.pick_next_role()
@@ -138,10 +143,12 @@ class Game:
 			#come on, you've played throught all of the roles, aren't you bored already?>
 			return {"error":"game_over","message":"All roles played"}
 
-		if len(self.players) < 3:
-			#can't really play with such a smol number of peeps
-			return {"error":"insufficient_players","message":"Not enought players left"}
 
+		#Refresh player state
+		for player in self.players:
+			self.players[player].set_ready(False)
+			self.players[player].drop_candidate_cards()
+		
 		#replenish cards
 		try:
 			new_cards = self.replenish_cards()
@@ -152,7 +159,8 @@ class Game:
 		self.players_interviewed = {}
 		self.ready_players_count = 0
 		self.turn_in_progress = True
-		
+		self.interview_in_progress = False
+
 		return {"role":self.current_role, "employer":self.current_employer.get_id(), "candidates":new_cards}
 
 
@@ -245,7 +253,11 @@ class Game:
 			self.interview_in_progress = False
 			self.players_interviewed[self.current_candidate.get_id()] = True
 
-			return {"player_id":self.current_candidate.get_id(), "card_ids":self.current_candidate.get_candidate_cards()}
+			candidate_id = self.current_candidate.get_id()
+			candidate_cards = self.current_candidate.get_candidate_cards()
+			self.current_candidate = None
+
+			return {"player_id":candidate_id, "card_ids": candidate_cards}
 
 		return {"error":"invalid_state","message":"No interview in progress"}
 

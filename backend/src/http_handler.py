@@ -13,6 +13,7 @@ GET  /[game_id]/player-remove/[user_id]                      -> {'status':'ok'}
 GET  /[game_id]/players-shuffle                              -> ["user_id_1", "user_id_2", "user_id_2"]
 GET  /[game_id]/player-order                                 -> ["user_id_1", "user_id_2", "user_id_2"]
 GET  /[game_id]/turn-start                                   -> {"role": {"id": 0, "text": "card_content"}, "employer": "employer_id", "candidates": [{"player": "test", "new_cards": [{"id": 0, "text": "a"}, {"id": 1, "text": "b"}, {"id": 2, "text": "c"}, {"id": 3, "text": "d"}, {"id": 4, "text": "e"}, {"id": 5, "text": "f"}]}, {"player": "test2", "new_cards": [{"id": 6, "text": "g"}, {"id": 7, "text": "h"}, {"id": 8, "text": "i"}, {"id": 9, "text": "j"}, {"id": 10, "text": "k"}, {"id": 11, "text": "l"}]}, {"player": "test3", "new_cards": [{"id": 12, "text": "m"}, {"id": 13, "text": "n"}, {"id": 14, "text": "o"}, {"id": 15, "text": "p"}, {"id": 16, "text": "q"}, {"id": 17, "text": "r"}]}]}
+GET  /[game_id]/turn-start/force
 GET  /[game-id]/player-ready/card_id_1/card_id_2/card_id_3   -> {"status": "ok"}
 POST /[game_id]/player-ready                                
     BODY:      [card_id_1, card_id_2, card_id_3] 
@@ -124,6 +125,9 @@ class RestHttpHandler(BaseHTTPRequestHandler):
 
             if command == 'turn-start':
                 try:
+                    if parameters != None and len(parameters) > 0 and parameters[0] == "force":
+                        #force start a turn
+                        return game.start_turn(True)
                     return game.start_turn()
                 except Exception as e:
                     print(e)

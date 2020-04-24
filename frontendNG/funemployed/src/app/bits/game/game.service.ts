@@ -29,8 +29,8 @@ export class GameService {
   */
 
   constructor(private gamecomm: GameCommService, private router: Router) {
-    this.gameId = null;
-    this.playerId = null;
+    this.gameId = "UNDEFINED";
+    this.playerId = "UNDEFINED";
     this.cards = [];
     this.ready = false;
     this.wins = 0;
@@ -232,6 +232,12 @@ export class GameService {
       this.router.navigate(['/joingame']);
     }, (error) => {
       this.router.navigate(['/joingame']);
+    })
+  }
+
+  public forceNewTurn(){
+    this.gamecomm.forceNewTurn(this.gameId).subscribe((data) => {
+        console.log(data);
     })
   }
 

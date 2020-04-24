@@ -96,4 +96,8 @@ export class GameComponent implements OnInit {
     refresh(event){
         this.game.updateState();
     }
+
+    forceNewTurn(event){
+        this.game.forceNewTurn();
+    }
 }

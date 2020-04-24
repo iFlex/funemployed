@@ -4,14 +4,18 @@
     left: 0;
     bottom: 0;
     right: 0;
-    overflow: auto;
+    overflow-x: auto;
     background-color: white;
 }
 
-.fitparent{
+.fitparent {
     width:100%;
     height:100%;
-    margin: 20px;
+}
+
+.fit_width {
+    width:100%;
+    display: block;
 }
 
 .game_subscreen {
@@ -19,19 +23,19 @@
     height: 60%;
     display: inline-block;
     white-space: nowrap;
-    overflow:scroll;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
-.employer_slice{
+.employer_slice {
     width: 100%;
     height: 20%;
     
     display: inline-block;
-    white-space: nowrap;
     overflow: hidden;
 }
 
-.employer_container{
+.employer_container {
     width: 25%;
     height: 100%;
     display: inline-block;
@@ -40,7 +44,7 @@
     font-weight:bold;
 }
 
-.employer_actions_container {
+.employer_job_container {
     width:50%;
     height: 100%;
     background-color: #82e0aa;
@@ -54,44 +58,62 @@
     height: 100%;
     background-color: #82e0aa;
     display: inline-block;
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
 }
 
 .util_action {
-    width: 128px;
     height: 32px;
     display: inline-block;
 }
 
-.employee_slice{
+.util_button {
+    font-size: 1ex;
+}
+
+.current_player {
+    height:33%;
+}
+
+.current_player_stats {
+    height: 33%
+}
+
+.current_player_actions {
+    height: 33%;
+} 
+
+.employee_slice {
     width: 100%;
     height: 20%;
     overflow: hidden;
     white-space: nowrap;
-    padding: 5px;
+    overflow-wrap: nowrap;
+    margin-top: 5px;
+    display: block;
 }
 
-.employee_container{
+.employee_container {
     width: 25%;
     height: 100%;
-    border-radius: 10px;
     background-color:  #5499c7;
-    display: inline-block;
+    display: inline-flex;
     white-space: nowrap;
-
-    padding: 10px;
 }
 
 .employee_container:hover {
-    transform: scale(0.9);
+    transform: scale(0.95);
 }
 
 .employee_actions_container {
     width:75%;
     height: 100%;
-    display: inline-block;
+    
+    overflow-x: auto;
+    overflow-y: hidden;
+    display: inline-flex;
     white-space: nowrap;
+    margin-left: 5px;
 }
 
 .card_slice {
@@ -99,35 +121,64 @@
     height: 20%;
     overflow: hidden;
     display: inline-block;
-    white-space: nowrap;
     background:  #cacfd2;
 }
-.card_deck{
+
+.card_deck {
     width: 90%;
     height: 100%;
-    overflow-x: scroll;
-    overflow-y: hidden;
+    
+    overflow: auto;
     display: inline-block;
     white-space: nowrap;
 }
+
 .ready_container {
     width:10%;
     height: 100%;
     overflow: hidden;
     display: inline-block;
-    white-space: nowrap;
 }
 
 .card {
     height:100%;
-    display: inline-block;
+    width:13%;
+    display: inline-flex;
     border-radius: 5px;
     background-color:   #82e0aa ;
     padding: 10px;
     margin: 5px;
+    min-width: 64px;
+
+    text-align: center;
+    white-space: break-spaces;
+    overflow-wrap: normal;
+    word-wrap: normal;
+    hyphens: auto;
 }
 
 .card:hover {
+    transform: scale(0.9);
+}
+
+.card-in-hand {
+    height:100%;
+    width:13%;
+    display: inline-flex;
+    border-radius: 5px;
+    background-color:   #82e0aa ;
+    padding: 10px;
+    margin: 5px;
+    min-width: 64px;
+
+    text-align: center;
+    white-space: break-spaces;
+    overflow-wrap: normal;
+    word-wrap: normal;
+    hyphens: auto;
+}
+
+.card-in-hand:hover {
     transform: scale(0.9);
 }
 
@@ -143,10 +194,18 @@
     background-color:  #c0392b;
 }
 
+.candidate_name {
+
+}
+
+.candidate_stats {
+
+}
+
 button {
-    width: 80%;
-    height: 80%;
-    border-radius: 15px;
+    width: 95%;
+    height: 95%;
+    border-radius: 5px;
     background-color:  #cd6155;
     margin: 5px;
 }
