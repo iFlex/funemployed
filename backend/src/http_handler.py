@@ -31,7 +31,7 @@ GET  /[game_id]                                              -> {"status":"ok"}
 
 class RestHttpHandler(BaseHTTPRequestHandler):
     game_factory = GameFactory()
-    serve_from = "./"
+    serve_from = "../dist/funemployed"
     encoding  = "utf-8"
     cookies_enabled = False
 
@@ -191,10 +191,12 @@ class RestHttpHandler(BaseHTTPRequestHandler):
         dot = path.rfind('.')
         ext = path[dot:]
         
-        print("Excension:"+ext)
-
-        return mimetypes.types_map[ext]
-
+        print("Extension:"+ext)
+        try:
+            return mimetypes.types_map[ext]
+        except Exception as e:
+            return "text/html"
+            
 
     def return_file(path):
         RestHttpHandler.ensure_file_path_allowed(path)

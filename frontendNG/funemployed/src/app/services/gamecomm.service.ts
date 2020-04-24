@@ -7,7 +7,7 @@ import { HttpClient } from '@angular/common/http';
 
 export class GameCommService {
   //ToDo: make configurable
-  endpoint = "http://localhost:8000/api"
+  endpoint = "http://feliks.ro:8001/api"
   
 
   constructor(private http: HttpClient) {
@@ -62,6 +62,11 @@ export class GameCommService {
 
   declareTurnWinner(gameId, playerId) {
     let url = this.endpoint + "/" + gameId + "/turn-end/" + playerId;
+    return this.http.get(url);
+  }
+
+  leaveGame(gameId, playerId){
+    let url = this.endpoint + "/" + gameId + "/player-remove/" + playerId;
     return this.http.get(url);
   }
 }

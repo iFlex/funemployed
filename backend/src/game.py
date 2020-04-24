@@ -77,6 +77,15 @@ class Game:
 		if player_id not in self.players:
 			raise Exception("Attempted to remove inexistent player")
 
+		#interviewee exited
+		if self.current_candidate != None and player_id == self.current_candidate.get_id():
+			self.end_interview()
+
+		#interviewer exited
+		if player_id == self.current_employer.get_id():
+			pass
+
+
 		if self.players[player_id].is_ready() == True:
 			self.ready_players_count -= 1
 
@@ -148,6 +157,9 @@ class Game:
 
 
 	def player_unready(self, player_id):
+		if len(players_interviewed) > 0:
+			return {"error":"invalid_request","message":"Interview process already started"}
+
 		player = self.retrieve_player(player_id)
 		player.drop_candidate_cards()
 		
@@ -164,6 +176,8 @@ class Game:
 			return {"error":"invalid_request","message":"No cards provided"}
 		if not (len(card_ids) == Game.MAX_INTERVIEW_CARD_COUNT):
 			return {"error":"invalid_request","message":"Player has selected %d cards for an interview, they should have chosen %d" % (Game.MAX_INTERVIEW_CARD_COUNT, len(card_ids))}
+		if len(players_interviewed) > 0:
+			return {"error":"invalid_request","message":"Interview process already started"}
 
 		player.set_candidate_cards(card_ids)
 		if player.is_ready() == False:
@@ -236,6 +250,21 @@ class Game:
 		return {"error":"invalid_state","message":"No interview in progress"}
 
 
+	def cancel_turn(self):
+		if self.interview_in_progress == True:
+			self.end_interview()
+		
+		#drop candidate cards
+		for pid in self.players_interviewed:
+			player = self.players[pid]
+			player.drop_candidate_cards()
+
+		self.turn_in_progress = False
+		self.players_interviewed = {}
+		self.ready_players_count = 0
+		self.current_candidate = None
+
+
 	def end_turn(self, hired_player_id):
 		if self.interview_in_progress == True:
 			return {"error":"invalid_state","message":"Interview is still in progress, please end it and then end the turn"}
@@ -253,6 +282,7 @@ class Game:
 			self.turn_in_progress = False
 			self.players_interviewed = {}
 			self.ready_players_count = 0
+			self.current_candidate = None
 			return {"status":"success", "hired":hired_player_id, "card":self.current_role}
 
 		return {"error":"invalid_request","message":"No turn in progress, cannot end an inexistent turn"}

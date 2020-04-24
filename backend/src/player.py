@@ -41,6 +41,13 @@ class Player:
 		self.candidate_cards = {}
 
 
+	def candidate_cards_to_hand(self):
+		for cid in self.candidate_cards:
+			self.traits[cid] = {"id":card_id, "text":text}
+
+		self.drop_candidate_cards()
+
+
 	def all_cards_revealed(self):
 		for key in self.candidate_cards:
 			if self.candidate_cards[key]['revealed'] != True:

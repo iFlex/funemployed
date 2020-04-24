@@ -1,0 +1,6 @@
+**/bin/
+**/dist/
+**/__pycache__
+*.tar
+**/node_modules
+**/package-lock.json

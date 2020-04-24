@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { GameCommService } from '../../services/gamecomm.service';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -7,7 +8,7 @@ import { GameCommService } from '../../services/gamecomm.service';
 export class GameService {
   public gameId: String;
   public playerId: String; //this is the owner of the lobby
-  public wins:Array<Object>;
+  public wins;
 
   public role: String;
   public employer: String;
@@ -27,15 +28,15 @@ export class GameService {
   ready: Boolean (if the player is ready)
   */
 
-  constructor(private gamecomm: GameCommService) {
+  constructor(private gamecomm: GameCommService, private router: Router) {
     this.gameId = null;
     this.playerId = null;
     this.cards = [];
     this.ready = false;
-    this.wins = [];
+    this.wins = 0;
     this.card_deck = {};
     this.job_deck = {};
-
+    this.current_candidate = {};
     this.updatePeriodically(this);
   }
 
@@ -55,8 +56,12 @@ export class GameService {
       return this.playerId;
   }
 
-  public getJobCardById(id){
-    //return this.job_deck[parseInt(id)];
+  public isCurrentCandidate(id){
+    if(this.current_candidate && this.current_candidate['id'] == id){
+      return true;
+    }
+
+    return false;
   }
 
   public getTraitCardById(id){
@@ -141,13 +146,15 @@ export class GameService {
       for(let key in this.players){
         if(key == this.playerId){
           this.ready = this.players[key]['ready'];
-          this.wins = this.players[key]['won'];
+          this.wins = this.players[key]['won'].length;
           this.intersect(this.cards, this.players[key]['traits']);
         }
         if(key != this.employer ) {
           this.updateCandidateCards(this.players[key], key);
         }
       }
+
+      //ToDo: notify winner
     });
   }
 
@@ -161,10 +168,7 @@ export class GameService {
 
   public startInterview(playerId){
     this.gamecomm.startInterview(this.gameId, playerId).subscribe((data) => {
-      if(data['success'] == true){
-        console.log(data);
-        alert("Interview Started:" + playerId);
-      }
+      alert("Interview Started:" + playerId);
     },(error) => {
       alert(JSON.stringify(error))
     })
@@ -172,9 +176,6 @@ export class GameService {
 
   public revealCard(cardId){
     this.gamecomm.revealCard(this.gameId, this.playerId, cardId).subscribe((data) => {
-      if(data['success'] == true){
-        console.log(data);
-      }
     },(error) => {
       alert(JSON.stringify(error))
     })
@@ -224,6 +225,11 @@ export class GameService {
         alert(JSON.stringify(error))
       })
     }
+  }
+
+  public leave(){
+    this.gamecomm.leaveGame(this.gameId, this.playerId)
+    this.router.navigate(['/joingame']);
   }
 
   public printGameState(){
