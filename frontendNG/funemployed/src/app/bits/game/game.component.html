@@ -33,8 +33,10 @@
                 <div id={{player.id}} class="fit_width candidate_stats">👑 {{player.wins}}</div>
             </div>
             <div class="employee_actions_container">
-                <div class="card" *ngFor="let card of player.display_items" id={{card.id}} (click)="revealCard($event)">
-                    {{card.text}}
+                <div [className]="card.revealed ? 'card card-selected' : 'card'" *ngFor="let card of player.display_items" id={{card.id}} (click)="revealCard($event)">
+                    <div>
+                        {{card.text}}
+                    </div>
                 </div>
             </div>
         </div>
