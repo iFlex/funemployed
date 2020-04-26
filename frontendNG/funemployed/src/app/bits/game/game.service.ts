@@ -123,7 +123,14 @@ export class GameService {
         ditems.push({id:-1,text:"Ready"});
       }
     }
-    this.candidates.push({id:key, display_items:ditems, wins: player.won.length});
+    let wasInterviewed = false;    
+    for(var playerInterviewed in this.interviewed) {
+      if( this.interviewed.hasOwnProperty(playerInterviewed) && playerInterviewed == key){
+        wasInterviewed = true;
+      }
+    }
+
+    this.candidates.push({id:key, interviewed: wasInterviewed, display_items:ditems, wins: player.won.length});
   }
 
   public updateState() {

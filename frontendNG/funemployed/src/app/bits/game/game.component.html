@@ -28,15 +28,13 @@
     </div>
     <div class="game_subscreen">
         <div class="employee_slice" *ngFor="let player of game.candidates">
-            <div class="employee_container" id={{player.id}}  (click)="candidateClick($event)" [ngClass]="{'interviewing': game.isCurrentCandidate(player.id)}">
+            <div [className]="player.interviewed ? 'employee_interviewed' : 'employee_ready'" id={{player.id}}  (click)="candidateClick($event)" [ngClass]="{'interviewing': game.isCurrentCandidate(player.id)}">
                 <div id={{player.id}} class="fit_width candidate_name">👔 {{player.id}}</div>
                 <div id={{player.id}} class="fit_width candidate_stats">👑 {{player.wins}}</div>
             </div>
             <div class="employee_actions_container">
                 <div [className]="card.revealed ? 'card card-selected' : 'card'" *ngFor="let card of player.display_items" id={{card.id}} (click)="revealCard($event)">
-                    <div>
-                        {{card.text}}
-                    </div>
+                    {{card.text}}
                 </div>
             </div>
         </div>

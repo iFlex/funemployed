@@ -93,16 +93,24 @@
     display: block;
 }
 
-.employee_container {
+.employee_ready {
     width: 25%;
     height: 100%;
-    background-color:  #5499c7;
     display: inline-flex;
     white-space: nowrap;
+    background-color: #5499c7;;
 }
 
-.employee_container:hover {
+.employee_ready:hover {
     transform: scale(0.95);
+}
+
+.employee_interviewed {
+    width: 25%;
+    height: 100%;
+    display: inline-flex;
+    white-space: nowrap;
+    background-color: #cacfd2;
 }
 
 .employee_actions_container {
