@@ -7,7 +7,7 @@ import { HttpClient } from '@angular/common/http';
 
 export class GameCommService {
   //ToDo: make configurable
-  endpoint = "http://localhost:8001/api" //"http://feliks.ro:8001/api"
+  endpoint = "http://localhost:8000/api" //"http://feliks.ro:8001/api"
   
 
   constructor(private http: HttpClient) {
