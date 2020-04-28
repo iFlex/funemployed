@@ -2,6 +2,9 @@ package funemployed.game;
 import funemployed.game.errors.DeckException;
 import funemployed.game.errors.GameException;
 import funemployed.game.errors.PlayerException;
+import funemployed.http.Endpoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,13 +12,16 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class GameInstance {
+    private static Logger logger = LoggerFactory.getLogger(Endpoint.class);
+    protected static final int MINIMUM_PLAYER_COUNT = 3;
+
     private String id;
     private Deck traits;
     private Deck jobs;
 
     private List<Player> players = new ArrayList<>(10);
     private List<Player> historicPlayers = new LinkedList<>();
-    private List<Integer> playersInterviewed = new ArrayList<>(9);
+    private List<String> playersInterviewed = new ArrayList<>(9);
 
     private boolean turnInProgress = false;
     private boolean interviewInProgress = false;
@@ -46,16 +52,16 @@ public class GameInstance {
             throw new GameException("FATAL: List of objects is null or too short, must contain at least 2");
         }
 
-        if(!options.contains(current)){
+        int index = options.indexOf(current);
+        if(index < 0){
             throw new GameException("FATAL: Could not pick next item form list.");
         }
-
-        return options.get((options.indexOf(current) + 1) % options.size());
+        return options.get((index + 1) % options.size());
     }
 
     public void pickNextCandidate() {
         for(Player player: players){
-            if(!currentEmployer.equals(player) && !playersInterviewed.contains(player)) {
+            if(!currentEmployer.equals(player) && !playersInterviewed.contains(player.getId())) {
                 currentCandidate = player;
                 return;
             }
@@ -70,6 +76,7 @@ public class GameInstance {
         } catch(GameException e){
             //ToDo: log fatal exception, this should not happen
             //gracefully continue by setting the current employer to the 1st player
+            logger.error("Failed to properly pick the next candidate",e);
             currentEmployer = players.get(0);
         }
     }
@@ -87,9 +94,11 @@ public class GameInstance {
 
     public synchronized Player addPlayer(Player player) {
         if(!players.contains(player)){
-            if(traits.numberOfRemainingCardS() >= player.getRefillCardCount()){
+            if(traits.numberOfRemainingCards() >= player.getRefillCardCount()){
                 players.add(player);
-                readyPlayerForNewTurn(player);
+                if(turnInProgress) {
+                    readyPlayerForNewTurn(player);
+                }
                 return player;
             }
 
@@ -101,7 +110,7 @@ public class GameInstance {
 
     public Player getPlayer(String id) throws GameException {
         for(Player lookup: players){
-            if(lookup.getId() == id ) {
+            if(lookup.getId().equals(id)) {
                 return lookup;
             }
         }
@@ -109,15 +118,19 @@ public class GameInstance {
         throw new GameException("Invalid player id " + id);
     }
 
-    public void computeTurnsLeft(){
+    public int computeTurnsLeft(){
         int cardCountNeed = (players.size() - 1) * 3;
-        int turnsLeftByTraits = traits.numberOfRemainingCardS() / cardCountNeed;
-        int turnsLeftByJobs = jobs.numberOfRemainingCardS();
+        if(cardCountNeed<0){
+            cardCountNeed = 1;
+        }
 
-        turnsLeft = Math.min(turnsLeftByTraits, turnsLeftByJobs);
+        int turnsLeftByTraits = traits.numberOfRemainingCards() / cardCountNeed;
+        int turnsLeftByJobs = jobs.numberOfRemainingCards();
+
+        return Math.min(turnsLeftByTraits, turnsLeftByJobs);
     }
 
-    public void removePlayer(String id) throws GameException {
+    public synchronized void removePlayer(String id) throws GameException {
         Player player = getPlayer(id);
         if(player != null){
             if(currentCandidate != null && player.equals(currentCandidate) && interviewInProgress){
@@ -137,12 +150,14 @@ public class GameInstance {
 
             //Player is employer: turn needs to end immediately -> force start a new turn
             if(currentEmployer != null && player.equals(currentEmployer)){
-                _startTurn();
+                forceNewTurn();
             }
+        } else {
+            throw new GameException("Invalid Player Id");
         }
     }
 
-    public void shufflePlayerOrder() {
+    public synchronized void shufflePlayerOrder() {
         Collections.shuffle(players);
     }
 
@@ -164,15 +179,15 @@ public class GameInstance {
         replenishPlayerCards(player);
     }
 
-    private boolean _startTurn() {
-        computeTurnsLeft();
-        if(turnsLeft > 0) {
+    public synchronized boolean forceNewTurn() {
+        turnsLeft = computeTurnsLeft();
+        if(turnsLeft > 0 && players.size() >= MINIMUM_PLAYER_COUNT) {
 
             turnInProgress = true;
             interviewInProgress = false;
             currentCandidate = null;
             readyPlayerCount = 0;
-
+            playersInterviewed.clear();
             pickNextEmployer();
             pickNextRole();
 
@@ -184,19 +199,27 @@ public class GameInstance {
         return false;
     }
 
-    public void startTurn() throws GameException {
+    public synchronized void startTurn() throws GameException {
         if(turnInProgress){
             throw new GameException("A turn is already in progress");
         }
 
-        boolean success = _startTurn();
-        if(success == false){
-            throw new GameException("Game Over. Cards Depleted");
+        boolean success = forceNewTurn();
+        if(!success){
+            throw new GameException("Can't start the turn. Most likely cause is that cards were depleted");
         }
     }
 
     public synchronized void playerReady(String playerId, Integer[] cards) throws GameException, PlayerException {
+        if(!turnInProgress){
+            throw new GameException("No turn in progress");
+        }
+
         Player player = getPlayer(playerId);
+        if(player.equals(currentEmployer)){
+            throw new GameException("Interviewer does not need to ready up");
+        }
+
         if(!playersInterviewed.contains(playerId)){
             if(cards.length != Player.REQUIRED_CANDIDATE_CARD_COUNT){
                 throw new GameException("Incorrect number of cards provided with player ready command");
@@ -209,6 +232,10 @@ public class GameInstance {
     }
 
     public synchronized void playerUnready(String playerId) throws GameException {
+        if(!turnInProgress){
+            throw new GameException("No turn in progress");
+        }
+
         Player player = getPlayer(playerId);
         if(player.isReady() == true){
             if(playersInterviewed.size() > 0 || interviewInProgress){
@@ -232,39 +259,57 @@ public class GameInstance {
         return players.size() - 1 - playersInterviewed.size();
     }
 
-    public void startInterview(String playerId) throws GameException, PlayerException {
-        if(turnInProgress) {
-            Player player = getPlayer(playerId);
-            if(interviewInProgress){
-                throw new GameException("An interview is already in progress. Start a new one after it finishes");
-            }
-
-            if(player.equals(currentEmployer)){
-                throw new GameException("Employer cannot interview themselves");
-            }
-
-            if(!player.isReady()){
-                throw new GameException("Candidate not ready for interview");
-            }
-
-            interviewInProgress = true;
-            currentCandidate = player;
+    public synchronized void startInterview(String playerId) throws GameException, PlayerException {
+        if(!turnInProgress) {
+             throw new GameException("No turn in progress");
         }
+
+        Player player = getPlayer(playerId);
+        if(interviewInProgress){
+            throw new GameException("An interview is already in progress. Start a new one after it finishes");
+        }
+
+        if(player.equals(currentEmployer)){
+            throw new GameException("Employer cannot interview themselves");
+        }
+
+        if(!player.isReady()){
+            throw new GameException("Candidate not ready for interview");
+        }
+
+        //need to think about this one, might allow interviews to happen again in the future
+        if(playersInterviewed.contains(player.getId())){
+            throw new GameException("This player was already interviewed");
+        }
+
+        interviewInProgress = true;
+        currentCandidate = player;
     }
 
-    public void revealCard(String playerId, Integer cardId) throws GameException, PlayerException {
+    public synchronized void revealCard(String playerId, Integer cardId) throws GameException, PlayerException {
+        if(!turnInProgress){
+            throw new GameException("No turn in progress");
+        }
+
         Player player = getPlayer(playerId);
         if(currentCandidate.equals(player)){
             player.revealCard(cardId);
+
+            if(player.allCardsRevealed()){
+                endInterview();
+            }
         } else {
             throw new GameException("Cannot reveal card if you're not interviewing");
         }
     }
 
-    public void endInterview() throws GameException, PlayerException {
-        if(interviewInProgress) {
-            currentCandidate.dropCandidateCards();
+    public synchronized void endInterview() throws GameException, PlayerException {
+        if(!turnInProgress){
+            throw new GameException("No turn in progress");
+        }
 
+        if(interviewInProgress) {
+            playersInterviewed.add(currentCandidate.getId());
             interviewInProgress = false;
             currentCandidate = null;
         } else {
@@ -276,17 +321,24 @@ public class GameInstance {
         turnInProgress = false;
     }
 
-    public void endTurn(String winnerId) throws GameException, PlayerException{
-        if(turnInProgress) {
-            Player player = getPlayer(winnerId);
-            int remainingCanidates = candidatesLeftToInterview();
-            if(remainingCanidates < 1){
-                player.addWonCard(currentRole);
-                turnInProgress = false;
-                turnsPlayed += 1;
-            } else {
-                throw new GameException("Candidates left to interview: "+remainingCanidates);
-            }
+    public synchronized void endTurn(String winnerId) throws GameException, PlayerException{
+        if(!turnInProgress) {
+            throw new GameException("No turn in progress");
+        }
+
+        Player player = getPlayer(winnerId);
+
+        if(player.equals(currentEmployer)){
+            throw new GameException("Cannot set the employer to the winner");
+        }
+
+        int remainingCanidates = candidatesLeftToInterview();
+        if(remainingCanidates < 1){
+            player.addWonCard(currentRole);
+            turnInProgress = false;
+            turnsPlayed += 1;
+        } else {
+            throw new GameException("Candidates left to interview: " + remainingCanidates);
         }
     }
 
@@ -294,7 +346,7 @@ public class GameInstance {
         return players;
     }
 
-    public List<Integer> getPlayersInterviewed() {
+    public List<String> getPlayersInterviewed() {
         return playersInterviewed;
     }
 

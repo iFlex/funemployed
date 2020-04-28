@@ -18,7 +18,9 @@ export class GameComponent implements OnInit {
     }
 
     ngOnInit(){
-
+        this.game.setWinnerCallback((player, card) =>{
+            alert("And the winner was:" + player.id);
+        })
     }
 
     startTurn(event){

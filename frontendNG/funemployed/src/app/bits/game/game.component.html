@@ -27,21 +27,27 @@
         </div>
     </div>
     <div class="game_subscreen">
-        <div class="employee_slice" *ngFor="let player of game.candidates">
-            <div [className]="player.interviewed ? 'employee_interviewed' : 'employee_ready'" id={{player.id}}  (click)="candidateClick($event)" [ngClass]="{'interviewing': game.isCurrentCandidate(player.id)}">
-                <div id={{player.id}} class="fit_width candidate_name">👔 {{player.id}}</div>
-                <div id={{player.id}} class="fit_width candidate_stats">👑 {{player.wins}}</div>
+        <div class="employee_slice" [style.display]="game.isCurrentEmployer(id)?'none':'block'" *ngFor="let id of game.playerIds">
+            <div [className]="game.hasPlayerInterviewed(id) ? 'employee_interviewed' : 'employee_ready'" id={{id}}  (click)="candidateClick($event)" [ngClass]="{'interviewing': game.isCurrentCandidate(id)}">  
+                <div id={{id}} class="fit_width candidate_name">👔 {{id}}</div>
+                <div id={{id}} class="fit_width candidate_stats">👑 {{game.players[id].wins}}</div>
             </div>
             <div class="employee_actions_container">
-                <div [className]="card.revealed ? 'card card-selected' : 'card'" *ngFor="let card of player.display_items" id={{card.id}} (click)="revealCard($event)">
-                    {{card.text}}
+                <div *ngFor="let card of game.players[id].candidate_cards"
+                    [style.display]="(card.revealed || id == game.playerId) ? 'inline-flex' : 'none'"  
+                    [className]="card.revealed ? 'card card-selected' : 'card'" 
+                    id={{card.id}} (click)="revealCard($event)">
+                    {{card.text}}{{card.revealed}}
+                </div>
+                <div class="card" *ngIf="game.getRevealedCardIds(id).length == 0 && !game.isCurrentEmployer(id) && id != game.playerId">
+                    {{(game.isCandidateReady(id) == true) ? "Ready" : "..." }}
                 </div>
             </div>
         </div>
     </div>
     <div class="card_slice">
         <div class="card_deck">
-            <div class="card-in-hand" *ngFor="let card of game.cards" id="{{card.id}}" (click)="toggleCard($event)">
+            <div class="card-in-hand" *ngFor="let card of game.getPlayerCards()" id="{{card.id}}" (click)="toggleCard($event)">
                 {{card.text}}
             </div>
         </div>

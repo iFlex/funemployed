@@ -22,7 +22,7 @@ export class GameLobbyComponent implements OnInit {
       
       if(!this.gameLobby.doesLobbyExist()){
         this.gameLobby.createLobby().subscribe((data) =>{
-          this.gameLobby.gameId = data["game_id"];  
+          this.gameLobby.gameId = data["id"];  
         });
       } else {
         this.gameLobby.updateLobby();

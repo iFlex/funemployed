@@ -14,8 +14,8 @@ public class Player {
     private String id;
     private boolean ready;
     private List<Card> traits      = new ArrayList<Card>(MAX_HAND_CARD_COUNT);
-    private List<Card> candidate_cards = new ArrayList<Card>(REQUIRED_CANDIDATE_CARD_COUNT);
-    private List<Card> won_cards   = new LinkedList<Card>();
+    private List<Card> candidateCards = new ArrayList<Card>(REQUIRED_CANDIDATE_CARD_COUNT);
+    private List<Card> wonCards = new LinkedList<Card>();
 
     public Player(String id){
         this.id = id;
@@ -34,8 +34,12 @@ public class Player {
         return this.ready;
     }
 
-    public boolean equals(Player other){
-        return this.id == other.id;
+    @Override
+    public boolean equals(Object other){
+        if (other instanceof Player){
+            return this.id.equals(((Player)other).id);
+        }
+        return false;
     }
 
     public void setCandidateCards(Integer[] candidateIds) throws PlayerException {
@@ -48,7 +52,7 @@ public class Player {
             //lookup card and move to candidate
             boolean found = false;
             for(Card card: traits){
-                if(card.getId() == id){
+                if(card.getId().equals(id)){
                     moveHandToCandidateCard(card);
                     found = true;
                     break;
@@ -64,7 +68,7 @@ public class Player {
 
     public boolean allCardsRevealed(){
         boolean revealed = true;
-        for(Card card: candidate_cards){
+        for(Card card: candidateCards){
             revealed = revealed && card.isRevealed();
         }
 
@@ -73,8 +77,8 @@ public class Player {
 
     public void revealCard(Integer cardId) throws PlayerException {
         boolean found = false;
-        for(Card card: candidate_cards){
-            if(card.getId() == cardId){
+        for(Card card: candidateCards){
+            if(card.getId().equals(cardId)){
                 card.setRevealed(true);
                 found = true;
             }
@@ -87,12 +91,12 @@ public class Player {
 
     public void moveHandToCandidateCard(Card card){
         traits.remove(card);
-        candidate_cards.add(card);
+        candidateCards.add(card);
         card.setRevealed(false);
     }
 
     public void moveCandidateCardsToHand(){
-        Iterator<Card> iterator = candidate_cards.iterator();
+        Iterator<Card> iterator = candidateCards.iterator();
         while(iterator.hasNext()){
             Card next = iterator.next();
             traits.add(next);
@@ -102,7 +106,7 @@ public class Player {
     }
 
     public void dropCandidateCards(){
-        candidate_cards.clear();
+        candidateCards.clear();
     }
 
     public void dropTraitCards(List<Card> toDrop) throws PlayerException{
@@ -131,11 +135,11 @@ public class Player {
     }
 
     public void addWonCard(Card winner) throws PlayerException {
-        if(won_cards.contains(winner)){
+        if(wonCards.contains(winner)){
             throw new PlayerException("Attempted to add duplicate won card to player");
         }
 
-        won_cards.add(winner);
+        wonCards.add(winner);
     }
 
     public int getRefillCardCount(){
@@ -146,11 +150,15 @@ public class Player {
         return traits;
     }
 
-    public List<Card> getCandidate_cards() {
-        return candidate_cards;
+    public List<Card> getCandidateCards() {
+        return candidateCards;
     }
 
-    public List<Card> getWon_cards() {
-        return won_cards;
+    public List<Card> getWonCards() {
+        return wonCards;
+    }
+
+    public String toString(){
+        return this.getClass().getSimpleName()+"::"+id;
     }
 }

@@ -120,7 +120,7 @@ class Player:
 			'candidateCards':self.candidate_cards,
 			'ready':self.ready,
 			'traits':[],
-			'won':[]
+			'wonCards':[]
 		}
 
 		for trait in self.traits:

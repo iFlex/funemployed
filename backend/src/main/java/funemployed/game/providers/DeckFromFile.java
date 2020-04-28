@@ -32,6 +32,9 @@ public class DeckFromFile implements DeckProvider {
             cards.add(card);
         }
 
-        return new Deck(cards);
+        Deck d = new Deck(cards);
+        d.shuffle();
+
+        return d;
     }
 }

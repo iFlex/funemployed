@@ -29,11 +29,9 @@ export class JoingameComponent implements OnInit {
       this.gameComm.joinGame(this.gameId, this.playerId).subscribe((data)=>{
         console.log(data);
         
-        if(data['token'] != null) {
-          this.gameLobby.gameId = this.gameId;
-          this.gameLobby.playerId = this.playerId;
-          this.router.navigate(['/gamelobby']);
-        }
+        this.gameLobby.gameId = this.gameId;
+        this.gameLobby.playerId = this.playerId;
+        this.router.navigate(['/gamelobby']);
       });
     }
 }

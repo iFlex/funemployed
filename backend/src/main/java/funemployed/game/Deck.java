@@ -27,12 +27,12 @@ public class Deck {
         return cards.size();
     }
 
-    public int numberOfRemainingCardS(){
+    public int numberOfRemainingCards(){
         return (cards.size() - drawPos);
     }
 
     public List<Card> draw(int count) throws DeckException {
-        if ( numberOfRemainingCardS() < count ){
+        if ( numberOfRemainingCards() < count ){
             throw new DeckException("Draw attempt is larger than the remaining set of cards");
         }
 

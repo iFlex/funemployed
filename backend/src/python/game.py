@@ -197,7 +197,13 @@ class Game:
 
 	def all_candidates_ready(self):
 		needed_count = len(self.players) - 1
-		return self.ready_players_count == needed_count
+		ready_count = 0
+		
+		for key in self.players:
+			if self.players[key].is_ready():
+				ready_count += 1
+
+		return ready_count == needed_count
 
 
 	def all_candidates_interviewed(self):
@@ -313,24 +319,24 @@ class Game:
 			'readyPlayersCount':self.ready_players_count,
 			'currentInterviewerPos':self.current_interviewer_pos,
 			'currentRole':self.current_role,
-			'players':{},
-			"playersInterviewed":{}
+			'players':[],
+			"playersInterviewed":[]
 		}
 
 		if self.current_employer:
 			result['currentEmployer'] = self.current_employer.to_json_dict()
 		if self.current_candidate:
 			result['currentCandidate'] = self.current_candidate.to_json_dict()
-		if self.jobs:
-			result['jobs'] = self.jobs.to_json_dict()
-		if self.traits:
-			result['traits'] = self.traits.to_json_dict()
+		# if self.jobs:
+		# 	result['jobs'] = self.jobs.to_json_dict()
+		# if self.traits:
+		# 	result['traits'] = self.traits.to_json_dict()
 
 		for player in self.players:
-			result['players'][player] = self.players[player].to_json_dict()
+			result['players'].append(self.players[player].to_json_dict())
 
 		for player in self.players_interviewed:
-			result['playersInterviewed'][player] = True
+			result['playersInterviewed'].append(player)
 
 		return result
 		

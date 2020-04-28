@@ -17,8 +17,12 @@ public class Card {
         timesWon = 0;
     }
 
-    public boolean equals(Card other){
-        return this.id == other.id;
+    @Override
+    public boolean equals(Object other){
+        if(other instanceof Card) {
+            return this.id.equals(((Card)other).id);
+        }
+        return false;
     }
 
     public Integer getId() {

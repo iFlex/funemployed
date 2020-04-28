@@ -67,7 +67,7 @@ class RestHttpHandler(BaseHTTPRequestHandler):
         print("game_id:%s command:%s parameters:%s" %(game_id, command, parameters))
         if game_id == 'game-new':
             game = RestHttpHandler.game_factory.new_game()
-            return {'game_id':game.get_id()}
+            return {'id':game.get_id()}
         else:
             game = RestHttpHandler.game_factory.get_game(game_id)
             if game == None:
