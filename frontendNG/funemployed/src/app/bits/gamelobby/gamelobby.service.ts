@@ -11,14 +11,23 @@ export class GameLobbyService {
   public playerId: String; //this is the owner of the lobby
   public players: String[];
   public polling:Boolean;
+  public traitsCount;
+  public jobsCount;
 
   constructor(private gamecomm: GameCommService, private router: Router, private gameService: GameService) {
     this.gameId = null;
     this.playerId = null;
     this.players = [];
+    this.traitsCount = 0;
+    this.jobsCount = 0;
     this.polling = false;
 
     this.enablePolling();
+  }
+
+  public getMaxRoundCount(){
+    let maxRoundsByTraits = Math.floor((this.traitsCount - (this.players.length * 6)) / ((this.players.length - 1) * 3))
+    return Math.min(this.jobsCount, maxRoundsByTraits);
   }
 
   public startGame(){
@@ -39,7 +48,13 @@ export class GameLobbyService {
       console.log(data);
       
       this.players = data['player_order'];
-      
+      if(data['jobs']){
+        this.jobsCount = data['jobs'].length;
+      }
+      if(data['traits']){
+        this.traitsCount = data['traits'].length;
+      }
+
       //check if the game has started
       if(data['turn_in_progress'] == true){
         this.startGame();
