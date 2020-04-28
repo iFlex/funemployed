@@ -127,6 +127,6 @@ class Player:
 		 	result['traits'].append(self.traits[trait])
 
 		for won_c in self.won:
-		 	result['won'].append(self.won[won_c])
+		 	result['wonCards'].append(self.won[won_c])
 		
 		return result

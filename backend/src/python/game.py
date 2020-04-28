@@ -229,7 +229,6 @@ class Game:
 			self.current_candidate = self.retrieve_player(player_id)
 		
 		self.interview_in_progress = True
-		self.current_candidate.set_ready(False)
 		
 		used_cards = self.current_candidate.get_candidate_cards()
 		self.current_candidate.drop_trait_cards(used_cards)
