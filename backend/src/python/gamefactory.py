@@ -6,7 +6,7 @@ import string
 
 class GameFactory:
 	def __init__(self):
-		self.PATH_TO_DECK = "C:\\Users\\gamer\\Documents\\GitHub\\funemployed\\backend\\resources\\card_packs\\ro"
+		self.PATH_TO_DECK = "../../resources/card_packs/ro"
 		self.registry = {}
 
 
