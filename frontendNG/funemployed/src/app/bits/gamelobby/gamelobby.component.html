@@ -3,6 +3,10 @@
     </p-button>
     
     <h1>Game ID - {{gameLobby.gameId}}</h1>
+    <h3>Maximum Rounds to Play: {{gameLobby.getMaxRoundCount()}}</h3>
+    <p>Jobs in card deck  : {{gameLobby.jobsCount}}</p>
+    <p>Traits in card deck: {{gameLobby.traitsCount}}</p>
+    <br>
     <h1>Players</h1>
     <ul>
         <li *ngFor="let player of gameLobby.players">
