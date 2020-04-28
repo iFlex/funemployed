@@ -6,7 +6,7 @@ import string
 
 class GameFactory:
 	def __init__(self):
-		self.PATH_TO_DECK = "./card_set.json"
+		self.PATH_TO_DECK = "C:\\Users\\gamer\\Documents\\GitHub\\funemployed\\backend\\resources\\card_packs\\ro"
 		self.registry = {}
 
 
@@ -15,9 +15,15 @@ class GameFactory:
 
 
 	def decks_from_json_file(self, path):
-		with open(path, "r", encoding="utf-8") as f:
-			jdata = json.loads(f.read())
-		return (Deck(jdata['jobs']), Deck(jdata['traits']))
+		with open(self.PATH_TO_DECK+"\\jobs") as f:
+			lines = f.readlines()
+		jobs = Deck(lines)
+
+		with open(self.PATH_TO_DECK+"\\traits") as f:
+			lines = f.readlines()
+		traits = Deck(lines)
+
+		return(jobs, traits)
 
 
 	def new_game(self):

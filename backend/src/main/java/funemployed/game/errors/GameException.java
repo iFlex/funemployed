@@ -1,4 +1,7 @@
 package funemployed.game.errors;
 
-public class GameException {
+public class GameException extends Exception {
+    public GameException(String message){
+        super();
+    }
 }

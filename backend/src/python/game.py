@@ -308,19 +308,19 @@ class Game:
 		result = {
 			'id':self.id,
 			'player_order':self.player_order,
-			'turn_in_progress':self.turn_in_progress,
-			'interview_in_progress':self.interview_in_progress,
-			'ready_players_count':self.ready_players_count,
-			'current_interviewer_pos':self.current_interviewer_pos,
-			'current_role':self.current_role,
+			'turnInProgress':self.turn_in_progress,
+			'interviewInProgress':self.interview_in_progress,
+			'readyPlayersCount':self.ready_players_count,
+			'currentInterviewerPos':self.current_interviewer_pos,
+			'currentRole':self.current_role,
 			'players':{},
-			"players_interviewed":{}
+			"playersInterviewed":{}
 		}
 
 		if self.current_employer:
-			result['current_employer'] = self.current_employer.to_json_dict()
+			result['currentEmployer'] = self.current_employer.to_json_dict()
 		if self.current_candidate:
-			result['current_candidate'] = self.current_candidate.to_json_dict()
+			result['currentCandidate'] = self.current_candidate.to_json_dict()
 		if self.jobs:
 			result['jobs'] = self.jobs.to_json_dict()
 		if self.traits:
@@ -330,7 +330,7 @@ class Game:
 			result['players'][player] = self.players[player].to_json_dict()
 
 		for player in self.players_interviewed:
-			result['players_interviewed'][player] = True
+			result['playersInterviewed'][player] = True
 
 		return result
 		

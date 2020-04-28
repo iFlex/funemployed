@@ -38,10 +38,10 @@ export class GameLobbyService {
     this.gamecomm.status(this.gameId).subscribe((data) => {
       console.log(data);
       
-      this.players = data['player_order'];
+      this.players = data['players'];
       
       //check if the game has started
-      if(data['turn_in_progress'] == true){
+      if(data['turnInProgress'] == true){
         this.startGame();
         this.polling = false;
       }

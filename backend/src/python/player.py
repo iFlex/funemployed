@@ -117,7 +117,7 @@ class Player:
 	def to_json_dict(self):
 		result = {
 			'id':self.id,
-			'candidate_cards':self.candidate_cards,
+			'candidateCards':self.candidate_cards,
 			'ready':self.ready,
 			'traits':[],
 			'won':[]
