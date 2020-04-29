@@ -4,6 +4,7 @@ public class DeckException extends Exception {
     public String message;
 
     public DeckException(String message){
-        super();
+        super(message);
+        this.message = message;
     }
 }

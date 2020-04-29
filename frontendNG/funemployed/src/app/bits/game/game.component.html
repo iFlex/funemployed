@@ -37,7 +37,7 @@
                     [style.display]="(card.revealed || id == game.playerId) ? 'inline-flex' : 'none'"  
                     [className]="card.revealed ? 'card card-selected' : 'card'" 
                     id={{card.id}} (click)="revealCard($event)">
-                    {{card.text}}{{card.revealed}}
+                    {{card.text}}
                 </div>
                 <div class="card" *ngIf="game.getRevealedCardIds(id).length == 0 && !game.isCurrentEmployer(id) && id != game.playerId">
                     {{(game.isCandidateReady(id) == true) ? "Ready" : "..." }}

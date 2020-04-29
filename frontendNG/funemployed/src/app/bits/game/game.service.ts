@@ -233,26 +233,28 @@ export class GameService {
   }
 
   public extractErrorMessage(data) {
-    console.error(data);
-    // if("error" in data && "message" in data["error"]) {
-    //     return data["error"]["message"];
-    // }
-    return data['error'];
-    //return "Unknown Error";
+    if(data['error']) {
+      console.error(data['error']);
+      let msg = data['error']['errorMessage'];
+      if(msg) {
+        alert(msg);
+      }
+    }
+    return null;
   }
 
   public startInterview(playerId){
     this.gamecomm.startInterview(this.gameId, playerId).subscribe((data) => {
       alert("Interview Started:" + playerId);
     },(error) => {
-      alert(this.extractErrorMessage(error))
+      this.extractErrorMessage(error)
     })
   }
 
   public revealCard(cardId){
     this.gamecomm.revealCard(this.gameId, this.playerId, cardId).subscribe((data) => {
     },(error) => {
-      alert(this.extractErrorMessage(error))
+      this.extractErrorMessage(error)
     })
   }
 
@@ -260,7 +262,7 @@ export class GameService {
     this.gamecomm.endInterview(this.gameId).subscribe((data) => {
       console.log(data);
     },(error) => {
-      alert(this.extractErrorMessage(error))
+      this.extractErrorMessage(error)
     })
   }
   
@@ -268,14 +270,14 @@ export class GameService {
     this.gamecomm.declareTurnWinner(this.gameId, id).subscribe((data) => {
       console.log(data);
     },(error) => {
-      alert(this.extractErrorMessage(error))
+      this.extractErrorMessage(error)
     })
   }
 
   public startTurn(){
       this.gamecomm.newTurn(this.gameId).subscribe((data)=>{
       },(error) => {
-        alert(this.extractErrorMessage(error))
+        this.extractErrorMessage(error)
       });
   }
 
@@ -289,13 +291,13 @@ export class GameService {
       this.gamecomm.readyUp(this.gameId, this.playerId, cards).subscribe((data) => {
         console.log(data);
       },(error) => {
-        alert(this.extractErrorMessage(error))
+        this.extractErrorMessage(error)
       })
     } else {
       this.gamecomm.unready(this.gameId, this.playerId).subscribe((data) => {
         console.log(data);
       },(error) => {
-        alert(this.extractErrorMessage(error))
+        this.extractErrorMessage(error)
       })
     }
   }
