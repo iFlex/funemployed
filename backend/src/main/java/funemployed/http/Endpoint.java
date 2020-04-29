@@ -54,6 +54,18 @@ public class Endpoint {
         return null;
     }
 
+    @GetMapping("/{game_id}/player-remove/{player_id}")
+    public Player playerRemove(@PathVariable(value = "game_id") String gameId,
+                            @PathVariable(value = "player_id") String playerId) throws GameException {
+        logger.info("/player-remove game:"+gameId+" player:"+playerId);
+
+        GameInstance gameInstance = gameInstanceFactory.findGame(gameId);
+        if(gameInstance != null) {
+            return gameInstance.removePlayer(playerId);
+        }
+        return null;
+    }
+
     @GetMapping("/{game_id}/player-shuffle")
     public GameInstance playerShuffle(@PathVariable(value = "game_id") String gameId){
         logger.info("/player-shuffle game:"+gameId);

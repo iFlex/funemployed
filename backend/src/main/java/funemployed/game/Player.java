@@ -95,7 +95,7 @@ public class Player {
         card.setRevealed(false);
     }
 
-    public void moveCandidateCardsToHand(){
+    public void     moveCandidateCardsToHand(){
         Iterator<Card> iterator = candidateCards.iterator();
         while(iterator.hasNext()){
             Card next = iterator.next();

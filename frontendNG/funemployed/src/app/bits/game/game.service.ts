@@ -24,6 +24,9 @@ export class GameService {
   public interviewed;
   public interviewInProgress: Boolean;
   public current_candidate;
+  public turnsPlayed;
+  public turnsLeft;
+
   private winCallback: Function;
   private interviewStartCallback: Function;
   /*
@@ -39,6 +42,8 @@ export class GameService {
     this.ready = false;
     this.wins = 0;
     this.players = {};
+    this.turnsPlayed = 0;
+    this.turnsLeft = 0;
     this.updatePeriodically(this);
   }
 
@@ -197,7 +202,9 @@ export class GameService {
       this.interviewed = data['playersInterviewed'];
       this.interviewInProgress = data['interviewInProgress'];
       this.current_candidate = data['currentCandidate'];
-      // //ToDo: notify winner
+      
+      this.turnsPlayed = data['turnsPlayed'];
+      this.turnsLeft = data['turnsLeft'];
     });
   }
 
@@ -215,7 +222,7 @@ export class GameService {
   }
 
   public allPlayersPresented() {
-    return Object.keys(this.interviewed).length == Object.keys(this.players).length - 1;
+    return this.interviewed.length == Object.keys(this.players).length - 1;
   }
 
   public isInterviewInProgress() {
@@ -283,7 +290,7 @@ export class GameService {
 
   public updatePeriodically(ctx){
     ctx.updateState();
-    setTimeout(()=>{ctx.updatePeriodically(ctx)}, 2000);
+    setTimeout(()=>{ctx.updatePeriodically(ctx)}, 500);
   }
 
   public toggleReady(cards){

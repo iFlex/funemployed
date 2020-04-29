@@ -11,8 +11,9 @@
                 <b>{{game.playerId}}</b>
             </div>
             <div class="current_player_stats fit_width">
-                👑 {{game.wins}} 🕹️ {{game.gameId}}
+                👑 {{game.wins}} 🕹️ {{game.gameId}} <br/>
             </div>
+            Played {{game.turnsPlayed}} Rounds Left {{game.turnsLeft}}
             <div class="current_player_actions fit_width">
                 <div class="util_action">
                     <button class="util_button" (click)="startTurn($event)">New Turn</button>

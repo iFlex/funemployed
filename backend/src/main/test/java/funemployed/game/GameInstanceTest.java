@@ -71,6 +71,16 @@ public class GameInstanceTest {
         return cards;
     }
 
+    public static Integer[] selectFirstThreeCards(Player player){
+        //pick cards
+        List<Card> hand = player.getTraits();
+        Integer[] pick = new Integer[Player.REQUIRED_CANDIDATE_CARD_COUNT];
+        for (int i = 0; i < Player.REQUIRED_CANDIDATE_CARD_COUNT; ++i) {
+            pick[i] = hand.get(i).getId();
+        }
+        return pick;
+    }
+
     @Test(expected = GameException.class)
     public void testTurnDoestStartWithoutEnoughPlayers0() throws GameException {
         bareGameInstance.startTurn();
@@ -121,9 +131,12 @@ public class GameInstanceTest {
         assertEquals(testers.size() + 1, gameWithMinimumPlayersAndInfiniteCards.getPlayers().size());
     }
 
-    @Test
+    @Test(expected = GameException.class)
     public void removeExistingPlayerWorks() throws Exception {
         gameWithMinimumPlayersAndInfiniteCards.removePlayer("tester_1");
+        assertEquals(testers.size() - 1, gameWithMinimumPlayersAndInfiniteCards.getPlayers().size());
+
+        gameWithMinimumPlayersAndInfiniteCards.getPlayer("tester_1");
     }
 
     @Test(expected = GameException.class)
@@ -134,6 +147,25 @@ public class GameInstanceTest {
             fail();
         }
 
+        gameWithMinimumPlayersAndInfiniteCards.removePlayer("tester_1");
+    }
+
+    @Test
+    public void testEmployerLeavesDuringTurn() throws Exception {
+        gameWithMinimumPlayersAndInfiniteCards.startTurn();
+        for(int i = 1; i < testers.size(); ++i){
+            Player player =gameWithMinimumPlayersAndInfiniteCards.getPlayer(testers.get(i).getId());
+            gameWithMinimumPlayersAndInfiniteCards.playerReady(player.getId(), selectFirstThreeCards(player));
+        }
+
+        gameWithMinimumPlayersAndInfiniteCards.removePlayer("tester_1");
+        assertEquals(testers.size() - 1, gameWithMinimumPlayersAndInfiniteCards.getPlayers().size());
+        //ToDo
+    }
+
+    @Test
+    public void testEmployerLeavesDuringInterview() throws Exception {
+        gameWithMinimumPlayersAndInfiniteCards.startTurn();
         gameWithMinimumPlayersAndInfiniteCards.removePlayer("tester_1");
     }
 
@@ -177,15 +209,9 @@ public class GameInstanceTest {
             if(!player.equals(game.getCurrentEmployer())){
                 winner = player;
             }
-            //pick cards
-            List<Card> hand = player.getTraits();
-            Integer[] pick = new Integer[Player.REQUIRED_CANDIDATE_CARD_COUNT];
-            for (int i = 0; i < Player.REQUIRED_CANDIDATE_CARD_COUNT; ++i) {
-                pick[i] = hand.get(i).getId();
-            }
 
             try {
-                game.playerReady(player.getId(), pick);
+                game.playerReady(player.getId(), selectFirstThreeCards(player));
             } catch(GameException e){
                 timesFailed ++;
             }

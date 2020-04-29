@@ -99,6 +99,7 @@ public class GameInstance {
                 if(turnInProgress) {
                     readyPlayerForNewTurn(player);
                 }
+                computeTurnsLeft();
                 return player;
             }
 
@@ -120,7 +121,7 @@ public class GameInstance {
 
     public int computeTurnsLeft(){
         int cardCountNeed = (players.size() - 1) * 3;
-        if(cardCountNeed<0){
+        if(cardCountNeed <= 0){
             cardCountNeed = 1;
         }
 
@@ -130,31 +131,30 @@ public class GameInstance {
         return Math.min(turnsLeftByTraits, turnsLeftByJobs);
     }
 
-    public synchronized void removePlayer(String id) throws GameException {
+    public synchronized Player removePlayer(String id) throws GameException {
         Player player = getPlayer(id);
-        if(player != null){
-            if(currentCandidate != null && player.equals(currentCandidate) && interviewInProgress){
-                try{
-                    endInterview();
-                } catch(Exception e){
-                    throw new RuntimeException(e);
-                }
-            }
-
-            playersInterviewed.remove(player.getId());
-            players.remove(player);
-            historicPlayers.add(player);
-
-            //ToDo: implement player returns his hand to the deck
-            //ToDo: player discards his selected cards
-
-            //Player is employer: turn needs to end immediately -> force start a new turn
-            if(currentEmployer != null && player.equals(currentEmployer)){
+        if(currentCandidate != null && player.equals(currentCandidate) && interviewInProgress){
+            try{
+                endInterview();
+            } catch(Exception e) {
                 forceNewTurn();
+                throw new RuntimeException(e);
             }
-        } else {
-            throw new GameException("Invalid Player Id");
         }
+
+        playersInterviewed.remove(player.getId());
+        players.remove(player);
+        historicPlayers.add(player);
+        computeTurnsLeft();
+        //ToDo: implement player returns his hand to the deck
+        //ToDo: player discards his selected cards
+
+        //Player is employer: turn needs to end immediately -> force start a new turn
+        if(currentEmployer != null && player.equals(currentEmployer)){
+            forceNewTurn();
+        }
+
+        return player;
     }
 
     public synchronized void shufflePlayerOrder() {
@@ -224,6 +224,7 @@ public class GameInstance {
             if(cards.length != Player.REQUIRED_CANDIDATE_CARD_COUNT){
                 throw new GameException("Incorrect number of cards provided with player ready command");
             }
+            player.moveCandidateCardsToHand();
             player.setCandidateCards(cards);
             player.setReady(true);
         } else {
