@@ -43,38 +43,41 @@
         <testOutputDirectory>${project.build.directory}/test-classes</testOutputDirectory>
         <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
         <testSourceDirectory>${project.basedir}/src/main/test/java</testSourceDirectory>
+
         <resources>
           <resource>
             <directory>${project.basedir}/src/main/resources</directory>
           </resource>
         </resources>
+
         <testResources>
           <testResource>
             <directory>${project.basedir}/src/test/resources</directory>
           </testResource>
         </testResources>
-        <pluginManagement>
-          <!-- NOTE: These plugins will be removed from future versions of the super POM -->
-          <!-- They are kept for the moment as they are very unlikely to conflict with lifecycle mappings (MNG-4453) -->
+
           <plugins>
             <plugin>
-              <artifactId>maven-antrun-plugin</artifactId>
-              <version>1.3</version>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-maven-plugin</artifactId>
+              <configuration>
+                <executable>true</executable>
+              </configuration>
             </plugin>
-            <plugin>
-              <artifactId>maven-assembly-plugin</artifactId>
-              <version>2.2-beta-5</version>
-            </plugin>
-            <plugin>
-              <artifactId>maven-dependency-plugin</artifactId>
-              <version>2.8</version>
-            </plugin>
-            <plugin>
-              <artifactId>maven-release-plugin</artifactId>
-              <version>2.5.3</version>
+
+            <plugin> <!-- Need this to repackage the executable jar so that Spring can boot correctly... -->
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-maven-plugin</artifactId>
+              <version>2.2.6.RELEASE</version>
+              <executions>
+                <execution>
+                  <goals>
+                    <goal>repackage</goal>
+                  </goals>
+                </execution>
+              </executions>
             </plugin>
           </plugins>
-        </pluginManagement>
       </build>
 
       <reporting>
@@ -82,6 +85,7 @@
       </reporting>
 
       <dependencies>
+
         <dependency>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-starter-web</artifactId>
@@ -113,42 +117,4 @@
         </dependency>
 
       </dependencies>
-      <profiles>
-        <!-- NOTE: The release profile will be removed from future versions of the super POM -->
-        <profile>
-          <id>release-profile</id>
-     
-          <activation>
-            <property>
-              <name>performRelease</name>
-              <value>true</value>
-            </property>
-          </activation>
-     
-          <build>
-            <plugins>
-              <plugin>
-                <inherited>true</inherited>
-                <artifactId>maven-source-plugin</artifactId>
-                <executions>
-                  <execution>
-                    <id>attach-sources</id>
-                    <goals>
-                      <goal>jar-no-fork</goal>
-                    </goals>
-                  </execution>
-                </executions>
-              </plugin>
-              <plugin>
-                <inherited>true</inherited>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <configuration>
-                  <updateReleaseInfo>true</updateReleaseInfo>
-                </configuration>
-              </plugin>
-            </plugins>
-          </build>
-        </profile>
-      </profiles>
-     
     </project>

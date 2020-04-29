@@ -2,6 +2,7 @@ package funemployed.game;
 
 import funemployed.game.providers.DeckFromFile;
 import funemployed.game.providers.DeckProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -13,8 +14,15 @@ public class GameInstanceFactory {
     private static int GAME_ID_LENGTH = 5;
     private static int MAX_NEWGAME_ATTEMPTS = 3;
 
+    @Value("${packs.location}")
+    private String cardPacksPath;
+
     private HashMap<String, List<DeckProvider>> deckProviderRegistry = new HashMap<>();
     private HashMap<String, GameInstance> gameRegistry = new HashMap<String, GameInstance>();
+
+    public void setCardPacksPath(String path){
+        cardPacksPath = path;
+    }
 
     public static String generateGameId(int idLength){
         char[] gid = new char[idLength];
@@ -25,14 +33,19 @@ public class GameInstanceFactory {
         return new String(gid);
     }
 
+    public static String cleanLanguageParameter(String language){
+        return language.replaceAll("\\.*/*\\*","");
+    }
+
     public List<DeckProvider> resolveOrCreateDeckProviders(String language){
+        language = cleanLanguageParameter(language);
         synchronized (deckProviderRegistry){
             if(deckProviderRegistry.containsKey(language)) {
                 return deckProviderRegistry.get(language);
             } else {
                 List<DeckProvider> deckProviders = new LinkedList<>();
-                deckProviders.add(new DeckFromFile("C:\\Users\\gamer\\Documents\\GitHub\\funemployed\\backend\\resources\\card_packs\\ro\\jobs"));
-                deckProviders.add(new DeckFromFile("C:\\Users\\gamer\\Documents\\GitHub\\funemployed\\backend\\resources\\card_packs\\ro\\traits"));
+                deckProviders.add(new DeckFromFile(cardPacksPath + "/" + language + "/jobs"));
+                deckProviders.add(new DeckFromFile(cardPacksPath + "/" + language + "/traits"));
 
                 deckProviderRegistry.put(language, deckProviders);
                 return deckProviders;

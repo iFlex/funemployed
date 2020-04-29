@@ -1,6 +1,5 @@
 package funemployed.http;
 
-import funemployed.game.Deck;
 import funemployed.game.GameInstance;
 import funemployed.game.GameInstanceFactory;
 import funemployed.game.Player;
@@ -10,15 +9,9 @@ import funemployed.game.errors.PlayerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.HashMap;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
@@ -180,12 +173,12 @@ public class Endpoint {
         logger.error("Encountered exception", ex);
 
         if(ex instanceof GameException || ex instanceof PlayerException || ex instanceof DeckException){
-            return new ResponseEntity<ApiError>(
+            return new ResponseEntity<>(
                     new ApiError(ex.getClass().getSimpleName(), ex.getMessage()),
                     HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity<ApiError>(
+        return new ResponseEntity<>(
                 new ApiError("invalid_operation","cold not perform your operation"),
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }

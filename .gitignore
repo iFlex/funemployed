@@ -6,3 +6,5 @@
 **/package-lock.json
 **/.idea
 *.tgz
+/backend/target
+/backend/src/main/resources/public
