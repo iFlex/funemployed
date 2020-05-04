@@ -243,7 +243,10 @@ public class GameInstance {
                 throw new GameException("Cannot allow player to unready while interviews have started");
             }
 
+            player.moveCandidateCardsToHand();
             player.setReady(false);
+        } else {
+            throw new GameException("Player is not ready. Meaningless operation");
         }
     }
 

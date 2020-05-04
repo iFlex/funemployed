@@ -81,6 +81,7 @@ public class Player {
             if(card.getId().equals(cardId)){
                 card.setRevealed(true);
                 found = true;
+                break;
             }
         }
 
