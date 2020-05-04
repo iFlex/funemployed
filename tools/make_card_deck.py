@@ -19,7 +19,8 @@ with open(path_to_csv_export, newline='') as csvfile:
 	skipped_frist = False
 	for row in spamreader:
 		if skipped_frist:
-			jobs.append(row[0])
+			if len(row[0]) > 0:
+				jobs.append(row[0])
 			for i in range(1,len(row)):
 				if len(row[i]) > 0:
 					traits.append(row[i])

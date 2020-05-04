@@ -183,6 +183,9 @@ export class GameService {
         let frontendPlayer = this.players[backendPlayer.id];
         let player = this.translateToFrontendPlayerSturct(backendPlayer, frontendPlayer);
         this.playerIds.push(player.id);
+        if(player.id == this.playerId){
+          this.ready = player.ready;
+        }
 
         if(frontendPlayer == null){
           this.players[player.id] = player;
@@ -222,6 +225,7 @@ export class GameService {
   }
 
   public allPlayersPresented() {
+    console.log("Interviewed_Count:" + this.interviewed.length + " Total_Player_Count:" + Object.keys(this.players).length)
     return this.interviewed.length == Object.keys(this.players).length - 1;
   }
 
@@ -290,7 +294,7 @@ export class GameService {
 
   public updatePeriodically(ctx){
     ctx.updateState();
-    setTimeout(()=>{ctx.updatePeriodically(ctx)}, 500);
+    setTimeout(()=>{ctx.updatePeriodically(ctx)}, 1000);
   }
 
   public toggleReady(cards){
