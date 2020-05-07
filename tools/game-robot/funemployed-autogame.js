@@ -3,6 +3,7 @@ const http = require('http')
 const process = require('process');
 const { PerformanceObserver, performance } = require('perf_hooks');
 const fs = require('fs')
+const keepAliveAgent = new http.Agent({ keepAlive: true });
 
 let run_id = process.argv[2]
 let output_path = process.argv[3]
@@ -28,7 +29,8 @@ function positional_parameterised_url(params){
         url = url.replace(regex, params[i])
     }
 
-    return url_prefix + url
+    //return url_prefix + url
+    return config["api_location"] + url
 }
 
 function replaceAll(string, search, replace) {
@@ -75,7 +77,14 @@ async function api_call(params) {
         let url = positional_parameterised_url(params)
         var t0 = performance.now()
         
-        const req = http.get(url, (response) => {
+        let options = {
+            hostname: config.hostname,
+            port: config.port,
+            path: url,
+            agent: keepAliveAgent
+        }
+
+        const req = http.get(options, (response) => {
             let chunks_of_data = [];
             response.on('data', (fragments) => {
                 chunks_of_data.push(fragments);
@@ -86,7 +95,8 @@ async function api_call(params) {
                 // promise resolved on success
                 var t1 = performance.now()
                 time = (t1 - t0)
-                console.log(url + "," + time +" ms")
+                //ToDo: do this based on config variable
+                //console.log(url + "," + time +" ms")
                 record_new_call(params[0],time)
 
                 if(response.statusCode == 200){

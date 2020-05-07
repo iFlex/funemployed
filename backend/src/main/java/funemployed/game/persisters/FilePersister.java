@@ -77,12 +77,15 @@ public class FilePersister implements Persister {
             }
         });
 
-        for(File savedGame: directories){
-            GameInstance gi = load(savedGame.getName());
-            if(gi != null){
-                storedGames.add(gi);
+        if(directories != null){
+            for(File savedGame: directories){
+                GameInstance gi = load(savedGame.getName());
+                if(gi != null){
+                    storedGames.add(gi);
+                }
             }
         }
+
 
         return storedGames;
     }

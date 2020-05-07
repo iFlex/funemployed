@@ -1,7 +1,7 @@
 {
     "protocol":"http",
-    "hostname":"feliks.ro",
-    "port":"8001",
+    "hostname":"localhost",
+    "port":"8080",
     "api_location":"/api",
     "api":{
         "game_new":"/game-new",
