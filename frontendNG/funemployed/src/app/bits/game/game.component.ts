@@ -68,7 +68,7 @@ export class GameComponent implements OnInit {
     selectionOff(target, className){
         target.classList.remove(className);
     }
-
+    
     toggleCard(event){
         for(let i = 0; i < this.selectedDivs.length; ++i){
             let item = this.selectedDivs[i];

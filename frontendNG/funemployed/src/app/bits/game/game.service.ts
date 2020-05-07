@@ -190,6 +190,10 @@ export class GameService {
         if(frontendPlayer == null){
           this.players[player.id] = player;
         }
+        
+        if(player.id == this.playerId){
+          this.ready = player.ready
+        }
       }
 
       console.log("PLAYERS");
@@ -204,8 +208,7 @@ export class GameService {
 
       this.interviewed = data['playersInterviewed'];
       this.interviewInProgress = data['interviewInProgress'];
-      this.current_candidate = data['currentCandidate'];
-      
+      this.current_candidate = data['currentCandidate'];  
       this.turnsPlayed = data['turnsPlayed'];
       this.turnsLeft = data['turnsLeft'];
     });
