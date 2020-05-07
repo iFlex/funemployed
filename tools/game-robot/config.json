@@ -1,0 +1,23 @@
+{
+    "protocol":"http",
+    "hostname":"feliks.ro",
+    "port":"8001",
+    "api_location":"/api",
+    "api":{
+        "game_new":"/game-new",
+        "player_add":"/%/player-add/%",
+        "turn_start":"/%/turn-start",
+        "player_ready":"/%/player-ready/%/%/%/%",
+        "interview_start":"/%/interview-start/%",
+        "interview_reveal":"/%/interview-reveal/%/%",
+        "interview_end":"/%/interview-end",
+        "turn_end":"/%/turn-end/%"
+    },
+    "players":[{"id":"Aul"},{"id":"Bul"},{"id":"Cul"},{"id":"Dul"},{"id":"Eul"}],
+    "generate_players":0,
+    "game_id":"",
+    "turns_to_play":-1,
+    "winner_pick_mode":"random",
+    "parallel_simulations":500,
+    "simulation_continuous":false
+}
