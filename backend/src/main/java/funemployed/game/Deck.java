@@ -1,16 +1,22 @@
 package funemployed.game;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import funemployed.game.errors.DeckException;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 public class Deck {
 
-    private ArrayList<Card> cards;
-    private int drawPos = 0;
+    @JsonProperty
+    private ArrayList<Card> cards = new ArrayList<>();
+
+    @JsonProperty
+    private int drawPos;
+
+    public Deck(){
+        //used for json deser
+    }
 
     public Deck(List<Card> startCards){
         cards = new ArrayList<Card>(startCards.size());
@@ -58,5 +64,13 @@ public class Deck {
         }
 
         return draw;
+    }
+
+    public void setCards(ArrayList<Card> cards) {
+        this.cards = cards;
+    }
+
+    public void setDrawPos(int drawPos) {
+        this.drawPos = drawPos;
     }
 }

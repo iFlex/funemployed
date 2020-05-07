@@ -1,5 +1,7 @@
 package funemployed.game;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import funemployed.game.errors.PlayerException;
 
 import java.util.ArrayList;
@@ -11,11 +13,20 @@ public class Player {
     public static final Integer MAX_HAND_CARD_COUNT = 6;
     public static final Integer REQUIRED_CANDIDATE_CARD_COUNT = 3;
 
+    @JsonProperty
     private String id;
+    @JsonProperty
     private boolean ready;
+    @JsonProperty
     private List<Card> traits      = new ArrayList<Card>(MAX_HAND_CARD_COUNT);
+    @JsonProperty
     private List<Card> candidateCards = new ArrayList<Card>(REQUIRED_CANDIDATE_CARD_COUNT);
+    @JsonProperty
     private List<Card> wonCards = new LinkedList<Card>();
+
+    public Player(){
+        //used by JSON deser
+    }
 
     public Player(String id){
         this.id = id;
@@ -42,7 +53,7 @@ public class Player {
         return false;
     }
 
-    public void setCandidateCards(Integer[] candidateIds) throws PlayerException {
+    public void pickCandidateCards(Integer[] candidateIds) throws PlayerException {
         List<Card> cardsToMove = new ArrayList(REQUIRED_CANDIDATE_CARD_COUNT);
         if(candidateIds.length > REQUIRED_CANDIDATE_CARD_COUNT){
             throw new PlayerException("Invalid candidate card count. Too few or too many");
@@ -143,6 +154,7 @@ public class Player {
         wonCards.add(winner);
     }
 
+    @JsonIgnore
     public int getRefillCardCount(){
         return MAX_HAND_CARD_COUNT - traits.size();
     }
@@ -161,5 +173,21 @@ public class Player {
 
     public String toString(){
         return this.getClass().getSimpleName()+"::"+id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setTraits(List<Card> traits) {
+        this.traits = traits;
+    }
+
+    public void pickCandidateCards(List<Card> candidateCards) {
+        this.candidateCards = candidateCards;
+    }
+
+    public void setWonCards(List<Card> wonCards) {
+        this.wonCards = wonCards;
     }
 }

@@ -1,12 +1,23 @@
 package funemployed.game;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Card {
+
+    @JsonProperty
     private Integer id;
+    @JsonProperty
     private String text;
+    @JsonProperty
     private boolean revealed;
+
     //statistics
     private Integer timesSelected;
     private Integer timesWon;
+
+    public Card(){
+        //used by JSON deser
+    }
 
     public Card(Integer id, String text){
         this.id = id;

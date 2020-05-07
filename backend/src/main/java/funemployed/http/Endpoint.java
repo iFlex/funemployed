@@ -6,6 +6,7 @@ import funemployed.game.Player;
 import funemployed.game.errors.DeckException;
 import funemployed.game.errors.GameException;
 import funemployed.game.errors.PlayerException;
+import funemployed.game.persisters.PersisterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,9 @@ public class Endpoint {
     @Autowired
     private GameInstanceFactory gameInstanceFactory;
 
+    @Autowired
+    PersisterService persisterService;
+
     @GetMapping("/game-new")
     public GameInstance newGame(@RequestParam(value = "language", defaultValue = "ro") String language) {
         if(language == null){
@@ -31,6 +35,7 @@ public class Endpoint {
         logger.info("*game-new:"+language);
         GameInstance gameInstance = gameInstanceFactory.newGame(language);
         if(gameInstance != null){
+            persisterService.update(gameInstance);
             return gameInstance;
         }
         return null;
@@ -49,7 +54,10 @@ public class Endpoint {
         GameInstance gameInstance = gameInstanceFactory.findGame(gameId);
         if(gameInstance != null) {
             Player player = new Player(playerId);
-            return gameInstance.addPlayer(player);
+            player = gameInstance.addPlayer(player);
+
+            persisterService.update(gameInstance);
+            return player;
         }
         return null;
     }
@@ -61,7 +69,10 @@ public class Endpoint {
 
         GameInstance gameInstance = gameInstanceFactory.findGame(gameId);
         if(gameInstance != null) {
-            return gameInstance.removePlayer(playerId);
+            Player p = gameInstance.removePlayer(playerId);
+
+            persisterService.update(gameInstance);
+            return p;
         }
         return null;
     }
@@ -73,6 +84,7 @@ public class Endpoint {
         GameInstance gameInstance = gameInstanceFactory.findGame(gameId);
         if(gameInstance != null) {
             gameInstance.shufflePlayerOrder();
+            persisterService.update(gameInstance);
         }
         return gameInstance;
     }
@@ -84,6 +96,7 @@ public class Endpoint {
         GameInstance gameInstance = gameInstanceFactory.findGame(gameId);
         if(gameInstance != null){
                 gameInstance.startTurn();
+                persisterService.update(gameInstance);
         }
         return gameInstance;
     }
@@ -95,6 +108,7 @@ public class Endpoint {
         GameInstance gameInstance = gameInstanceFactory.findGame(gameId);
         if(gameInstance != null) {
             gameInstance.forceNewTurn();
+            persisterService.update(gameInstance);
         }
         return gameInstance;
     }
@@ -115,6 +129,7 @@ public class Endpoint {
             cards[2] = Integer.valueOf(card3);
 
             gameInstance.playerReady(playerId,cards);
+            persisterService.update(gameInstance);
         }
         return gameInstance;
     }
@@ -127,6 +142,7 @@ public class Endpoint {
         GameInstance gameInstance = gameInstanceFactory.findGame(gameId);
         if(gameInstance != null) {
             gameInstance.playerUnready(playerId);
+            persisterService.update(gameInstance);
         }
         return gameInstance;
     }
@@ -139,6 +155,7 @@ public class Endpoint {
         GameInstance gameInstance = gameInstanceFactory.findGame(gameId);
         if(gameInstance != null){
             gameInstance.startInterview(playerId);
+            persisterService.update(gameInstance);
         }
         return gameInstance;
     }
@@ -152,6 +169,7 @@ public class Endpoint {
         GameInstance gameInstance = gameInstanceFactory.findGame(gameId);
         if(gameInstance != null){
             gameInstance.revealCard(playerId, Integer.valueOf(cardId));
+            persisterService.update(gameInstance);
         }
         return gameInstance;
     }
@@ -162,7 +180,8 @@ public class Endpoint {
 
         GameInstance gameInstance = gameInstanceFactory.findGame(gameId);
         if(gameInstance != null){
-                gameInstance.endInterview();
+            gameInstance.endInterview();
+            persisterService.update(gameInstance);
         }
         return gameInstance;
     }
@@ -175,6 +194,7 @@ public class Endpoint {
         GameInstance gameInstance = gameInstanceFactory.findGame(gameId);
         if(gameInstance != null){
             gameInstance.endTurn(playerId);
+            persisterService.update(gameInstance);
         }
         return gameInstance;
     }

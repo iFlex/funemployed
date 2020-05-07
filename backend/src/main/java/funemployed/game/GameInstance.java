@@ -1,4 +1,6 @@
 package funemployed.game;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import funemployed.game.errors.DeckException;
 import funemployed.game.errors.GameException;
 import funemployed.game.errors.PlayerException;
@@ -15,32 +17,44 @@ public class GameInstance {
     private static Logger logger = LoggerFactory.getLogger(Endpoint.class);
     protected static final int MINIMUM_PLAYER_COUNT = 3;
 
-    private String id;
+    @JsonIgnore
     private Deck traits;
+    @JsonIgnore
     private Deck jobs;
 
+    @JsonProperty
+    private String id;
+    @JsonProperty
     private List<Player> players = new ArrayList<>(10);
+    @JsonProperty
     private List<Player> historicPlayers = new LinkedList<>();
+    @JsonProperty
     private List<String> playersInterviewed = new ArrayList<>(9);
-
+    @JsonProperty
     private boolean turnInProgress = false;
+    @JsonProperty
     private boolean interviewInProgress = false;
-
+    @JsonProperty
     private Card currentRole;
+    @JsonProperty
     private Player currentEmployer;
+    @JsonProperty
     private Player currentCandidate;
+    @JsonProperty
     private int readyPlayerCount = 0;
+    @JsonProperty
     private int turnsPlayed = 0;
+    @JsonProperty
     private int turnsLeft = 0;
+
+    public GameInstance(){
+        //used for JSON deser
+    }
 
     public GameInstance(String id, Deck jobs, Deck traits){
         this.id = id;
         this.jobs = jobs;
         this.traits = traits;
-    }
-
-    public String getId(){
-        return id;
     }
 
     public Object pickNext(Object current, List<?> options) throws GameException {
@@ -225,7 +239,7 @@ public class GameInstance {
                 throw new GameException("Incorrect number of cards provided with player ready command");
             }
             player.moveCandidateCardsToHand();
-            player.setCandidateCards(cards);
+            player.pickCandidateCards(cards);
             player.setReady(true);
         } else {
             throw new GameException(playerId + " has already been interviewed");
@@ -384,5 +398,25 @@ public class GameInstance {
 
     public int getTurnsLeft() {
         return turnsLeft;
+    }
+
+    public String getId(){
+        return id;
+    }
+
+    public Deck getTraits() {
+        return traits;
+    }
+
+    public Deck getJobs() {
+        return jobs;
+    }
+
+    public void setTraits(Deck traits) {
+        this.traits = traits;
+    }
+
+    public void setJobs(Deck jobs) {
+        this.jobs = jobs;
     }
 }

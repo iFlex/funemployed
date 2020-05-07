@@ -1,10 +1,15 @@
 package funemployed.game;
 
+import funemployed.game.persisters.PersisterService;
 import funemployed.game.providers.DeckFromFile;
 import funemployed.game.providers.DeckProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,12 +18,25 @@ import java.util.List;
 public class GameInstanceFactory {
     private static int GAME_ID_LENGTH = 5;
     private static int MAX_NEWGAME_ATTEMPTS = 3;
+    private static Logger LOGGER = LoggerFactory.getLogger(GameInstanceFactory.class);
 
     @Value("${packs.location}")
     private String cardPacksPath;
 
+    @Autowired
+    PersisterService persisterService;
+
     private HashMap<String, List<DeckProvider>> deckProviderRegistry = new HashMap<>();
     private HashMap<String, GameInstance> gameRegistry = new HashMap<String, GameInstance>();
+
+    @PostConstruct
+    public void init(){
+        List<GameInstance> state = persisterService.load();
+        for(GameInstance game: state) {
+            LOGGER.info("Loaded game {}", game.getId());
+            gameRegistry.put(game.getId(), game);
+        }
+    }
 
     public void setCardPacksPath(String path){
         cardPacksPath = path;
