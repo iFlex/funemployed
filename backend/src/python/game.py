@@ -134,14 +134,14 @@ class Game:
 
 		if len(self.players) < 3:
 			#can't really play with such a smol number of peeps
-			return {"error":"insufficient_players","message":"Not enought players left"}
+			return {"errorCode":"insufficient_players","errorMessage":"Not enought players left"}
 
 		self.pick_next_employer()
 		self.current_role     = self.pick_next_role()
 
 		if self.current_role == None:
 			#come on, you've played throught all of the roles, aren't you bored already?>
-			return {"error":"game_over","message":"All roles played"}
+			return {"errorCode":"game_over","errorMessage":"All roles played"}
 
 
 		#Refresh player state
@@ -154,7 +154,7 @@ class Game:
 			new_cards = self.replenish_cards()
 		except Exception as e:
 			#ToDo: use custom exception
-			return {"error":"deck_draw_fail","message":"Draw deck is too small"}
+			return {"errorCode":"deck_draw_fail","errorMessage":"Draw deck is too small"}
 
 		self.players_interviewed = {}
 		self.ready_players_count = 0
@@ -166,7 +166,7 @@ class Game:
 
 	def player_unready(self, player_id):
 		if len(self.players_interviewed) > 0:
-			return {"error":"invalid_request","message":"Interview process already started"}
+			return {"errorCode":"invalid_request","errorMessage":"Interview process already started"}
 
 		player = self.retrieve_player(player_id)
 		player.drop_candidate_cards()
@@ -179,13 +179,13 @@ class Game:
 	def player_ready(self, player_id, card_ids):
 		player = self.retrieve_player(player_id)
 		if player.equals(self.current_employer):
-			return {"error":"invalid_request","message":"employer does not need to ready up and submit cards"}
+			return {"errorCode":"invalid_request","errorMessage":"employer does not need to ready up and submit cards"}
 		if card_ids == None:
-			return {"error":"invalid_request","message":"No cards provided"}
+			return {"errorCode":"invalid_request","errorMessage":"No cards provided"}
 		if not (len(card_ids) == Game.MAX_INTERVIEW_CARD_COUNT):
-			return {"error":"invalid_request","message":"Player has selected %d cards for an interview, they should have chosen %d" % (Game.MAX_INTERVIEW_CARD_COUNT, len(card_ids))}
+			return {"errorCode":"invalid_request","errorMessage":"Player has selected %d cards for an interview, they should have chosen %d" % (Game.MAX_INTERVIEW_CARD_COUNT, len(card_ids))}
 		if len(self.players_interviewed) > 0:
-			return {"error":"invalid_request","message":"Interview process already started"}
+			return {"errorCode":"invalid_request","errorMessage":"Interview process already started"}
 
 		player.set_candidate_cards(card_ids)
 		if player.is_ready() == False:
@@ -213,15 +213,15 @@ class Game:
 
 	def start_interview(self, player_id=None):
 		if self.interview_in_progress == True:
-			return {"error":"invalid_state","message":"An interview is already in progress, please close it to start a new one"}
+			return {"errorCode":"invalid_state","errorMessage":"An interview is already in progress, please close it to start a new one"}
 		if not self.turn_in_progress:
-			return {"error":"invalid_state","message":"No turn is in progress, cannot start interview"}
+			return {"errorCode":"invalid_state","errorMessage":"No turn is in progress, cannot start interview"}
 		if player_id == self.current_employer.get_id():
-			return {"error":"invalid_request","message":"Cannot interview the employer..."} 
+			return {"errorCode":"invalid_request","errorMessage":"Cannot interview the employer..."} 
 		if not self.all_candidates_ready():
-			return {"error":"invalid_state","message":"not all candidates are ready for interviewing"}
+			return {"errorCode":"invalid_state","errorMessage":"not all candidates are ready for interviewing"}
 		if self.all_candidates_interviewed():
-			return {"error":"invalid_state","message":"All candidates were interviewed, can't start another interview"}
+			return {"errorCode":"invalid_state","errorMessage":"All candidates were interviewed, can't start another interview"}
 		
 		if player_id == None:
 			self.pick_next_candidate()
@@ -239,9 +239,9 @@ class Game:
 
 	def reveal_card(self, player_id, card_id):
 		if self.interview_in_progress != True:
-			return {"error":"invalid_state","message":"No interview in progress, please start one to reveal cards"}
+			return {"errorCode":"invalid_state","errorMessage":"No interview in progress, please start one to reveal cards"}
 		if self.current_candidate.get_id() != player_id:
-			return {"error":"invalid_action","message":"Can not reveal a card while not being interviewed"}
+			return {"errorCode":"invalid_action","errorMessage":"Can not reveal a card while not being interviewed"}
 
 		try:
 			self.current_candidate.reveal_card(card_id)
@@ -250,7 +250,7 @@ class Game:
 			return {"status":"success"}
 		except Exception as e:
 			print(e)
-			return {"error":"failure","message":"Failed to reveal card"}		
+			return {"errorCode":"failure","errorMessage":"Failed to reveal card"}		
 
 
 	def end_interview(self):
@@ -264,7 +264,7 @@ class Game:
 
 			return {"player_id":candidate_id, "card_ids": candidate_cards}
 
-		return {"error":"invalid_state","message":"No interview in progress"}
+		return {"errorCode":"invalid_state","errorMessage":"No interview in progress"}
 
 
 	def cancel_turn(self):
@@ -284,9 +284,9 @@ class Game:
 
 	def end_turn(self, hired_player_id):
 		if self.interview_in_progress == True:
-			return {"error":"invalid_state","message":"Interview is still in progress, please end it and then end the turn"}
+			return {"errorCode":"invalid_state","errorMessage":"Interview is still in progress, please end it and then end the turn"}
 		if not self.all_candidates_interviewed():
-			return {"error":"invalid_state","message":"Not all candidates have been intervewed. Either remove other players or interview them"}
+			return {"errorCode":"invalid_state","errorMessage":"Not all candidates have been intervewed. Either remove other players or interview them"}
 		if self.turn_in_progress == True:
 			hired = self.retrieve_player(hired_player_id)
 			hired.add_won_job_card(self.current_role)
@@ -302,7 +302,7 @@ class Game:
 			self.current_candidate = None
 			return {"status":"success", "hired":hired_player_id, "card":self.current_role}
 
-		return {"error":"invalid_request","message":"No turn in progress, cannot end an inexistent turn"}
+		return {"errorCode":"invalid_request","errorMessage":"No turn in progress, cannot end an inexistent turn"}
 
 
 	def end_game(self):

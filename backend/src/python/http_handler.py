@@ -71,30 +71,30 @@ class RestHttpHandler(BaseHTTPRequestHandler):
         else:
             game = RestHttpHandler.game_factory.get_game(game_id)
             if game == None:
-                return {"error":"invalid_game_id","message":"This game doesn't exist"}
+                return {"errorCode":"invalid_game_id","errorMessage":"This game doesn't exist"}
 
             if command == 'player-add':
                 if not (len(parameters) == 1):
-                    return {"error":"invalid_parameter","message":"Please provide a player-id in the URL"}
+                    return {"errorCode":"invalid_parameter","errorMessage":"Please provide a player-id in the URL"}
                 try:
                     return game.add_player(Player(parameters[0], {}))
                 except Exception as e:
                     print(e)
-                    return {"error":"failure","message":str(e)}
+                    return {"errorCode":"failure","errorMessage":str(e)}
 
             if command == 'player-remove':
                 if not (len(parameters) == 1):
-                    return {"error":"invalid_parameter","message":"Please provide a player-id in the URL"}
+                    return {"errorCode":"invalid_parameter","errorMessage":"Please provide a player-id in the URL"}
                 try:
                     game.remove_player(parameters[0])
                     return {'status':'ok'}
                 except Exception as e:
                     print(e)
-                    return {"error":"failure","message":str(e)}
+                    return {"errorCode":"failure","errorMessage":str(e)}
             
             if command == 'player-ready':
                 if len(parameters) < 1:
-                    return {"error":"invalid_parameter","message":"Please provide a player-id in the URL"}
+                    return {"errorCode":"invalid_parameter","errorMessage":"Please provide a player-id in the URL"}
                 try:
                     if len(parameters) > 1 and body == None:
                         print("Using get version of this request")
@@ -107,7 +107,7 @@ class RestHttpHandler(BaseHTTPRequestHandler):
                     return game.player_ready(parameters[0], body)
                 except Exception as e:
                     print(e)
-                    return {"error":"failure","message":str(e)}
+                    return {"errorCode":"failure","errorMessage":str(e)}
 
             if command == 'player-unready':
                 try:
@@ -115,7 +115,7 @@ class RestHttpHandler(BaseHTTPRequestHandler):
                     return {"status":"ok"}
                 except Exception as e:
                     print(e)
-                    return {"error":"failure","message":str(e)}
+                    return {"error":"failure","errorMessage":str(e)}
 
             if command == 'player-shuffle':
                 return game.shuffle_player_order()
@@ -131,57 +131,57 @@ class RestHttpHandler(BaseHTTPRequestHandler):
                     return game.start_turn()
                 except Exception as e:
                     print(e)
-                    return {"error":"failure","message":str(e)}
+                    return {"errorCode":"failure","errorMessage":str(e)}
 
             if command == 'interview-start':
                 if not (len(parameters) == 1):
-                    return {"error":"invalid_parameter","message":"Please provide a player-id in the URL"}
+                    return {"errorCode":"invalid_parameter","errorMessage":"Please provide a player-id in the URL"}
                 try:
                     return game.start_interview(parameters[0])
                 except Exception as e:
                     print(e)
-                    return {"error":"failure","message":str(e)}
+                    return {"errorCode":"failure","errorMessage":str(e)}
 
             if command == 'interview-reveal':
                 if not (len(parameters) == 2):
-                    return {"error":"invalid_parameter","message":"Please provide a player-id and card-id in the URL"}
+                    return {"errorCode":"invalid_parameter","errorMessage":"Please provide a player-id and card-id in the URL"}
                 try:
                     return game.reveal_card(parameters[0], parameters[1])
                 except Exception as e:
                     print(e)
-                    return {"error":"failure","message":str(e)}
+                    return {"errorCode":"failure","errorMessage":str(e)}
 
             if command == 'interview-end':
                 try:
                     return game.end_interview()
                 except Exception as e:
                     print(e)
-                    return {"error":"failure","message":str(e)}
+                    return {"errorCode":"failure","errorMessage":str(e)}
 
             if command == 'turn-end':
                 if not (len(parameters) == 1):
-                    return {"error":"invalid_parameter","message":"Please provide the player-id or the hired candidate"}
+                    return {"errorCode":"invalid_parameter","errorMessage":"Please provide the player-id or the hired candidate"}
                 try:
                     return game.end_turn(parameters[0])
                 except Exception as e:
                     print(e)
-                    return {"error":"failure","message":str(e)}
+                    return {"errorCode":"failure","errorMessage":str(e)}
 
             if command == 'game-end':
                 try:
                     return game.end_game()
                 except Exception as e:
                     print(e)
-                    return {"error":"failure","message":str(e)}
+                    return {"errorCode":"failure","errorMessage":str(e)}
 
             if command == None:
                 try:
                     return game.to_json_dict()
                 except Exception as e:
                     print(e)
-                    return {"error":"failure","message":str(e)}
+                    return {"errorCode":"failure","errorMessage":str(e)}
 
-        return {"error":"invalid_request", "message":"request did not follow the correct URL convention"}
+        return {"errorCode":"invalid_request", "errorMessage":"request did not follow the correct URL convention"}
 
 
     def ensure_file_path_allowed(path):
@@ -232,7 +232,7 @@ class RestHttpHandler(BaseHTTPRequestHandler):
 
             status = 200
 
-            if 'error' in response_body:
+            if 'errorCode' in response_body:
                 status = 500
                 print(response_body)
 
