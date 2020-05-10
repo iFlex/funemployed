@@ -1,13 +1,8 @@
 package funemployed.game.persisters;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import funemployed.game.Card;
 import funemployed.game.Deck;
 import funemployed.game.GameInstance;
-import funemployed.game.errors.DeckException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,20 +21,17 @@ public class FilePersister implements Persister {
     private String basePath;
     private ObjectMapper om = new ObjectMapper();
 
-    public FilePersister(@Value("${persisted_state}")String basePath){
+    public FilePersister(@Value("${persisted_state:}")String basePath){
         this.basePath =  basePath;
     }
 
-    void saveDeck(Deck deck, String fullPath) throws IOException, DeckException {
-        om.writeValue(new File(fullPath), deck);
-    }
-
-    Deck loadDeck(String fullPath) throws IOException {
-        return om.readValue(new File(fullPath), Deck.class);
-    }
-
     @Override
-    public GameInstance load(String gid) {
+    public synchronized GameInstance load(String gid) {
+        if(basePath.length() == 0){
+            LOGGER.error("Cannot load stored bame because no basePath was provided");
+            return null;
+        }
+
         LOGGER.info("Loading persisted game {}", gid);
 
         String gameStateSavePath = createGameSaveDirectories(gid);
@@ -68,8 +60,12 @@ public class FilePersister implements Persister {
     }
 
     @Override
-    public List<GameInstance> loadAll() {
+    public synchronized List<GameInstance> loadAll() {
         List<GameInstance> storedGames = new LinkedList<>();
+        if(basePath.length() == 0){
+            return storedGames;
+        }
+
         File[] directories = new File(basePath).listFiles(new FileFilter() {
             @Override
             public boolean accept(File file) {
@@ -127,7 +123,21 @@ public class FilePersister implements Persister {
     }
 
     @Override
-    public void save(GameInstance gameInstance) {
+    public synchronized void delete(String gameId) {
+        if(basePath.length() == 0){
+            LOGGER.error("Cannot delete game state because no basePath was proviced");
+        }
+
+        //ToDo
+    }
+
+    @Override
+    public synchronized void save(GameInstance gameInstance) {
+        if(basePath.length() == 0){
+            LOGGER.error("Cannot save game state because there was no save path provided");
+            return;
+        }
+
         String gameStateSavePath = createGameSaveDirectories(gameInstance.getId());
         File gameStoreFile = new File(gameStateSavePath + "/game.json" + NEW_FILE_SUFFIX);
         File jobDeckSavePath = new File(gameStateSavePath + "/jobs.json" + NEW_FILE_SUFFIX);

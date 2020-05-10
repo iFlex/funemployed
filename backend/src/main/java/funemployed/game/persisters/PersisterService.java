@@ -25,6 +25,12 @@ public class PersisterService {
         });
     }
 
+    public void delete(String gid){
+        executor.execute(() -> {
+            persister.delete(gid);
+        });
+    }
+
     public List<GameInstance> load(){
         return persister.loadAll();
     }
