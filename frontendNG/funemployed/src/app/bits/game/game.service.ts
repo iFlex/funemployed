@@ -101,6 +101,10 @@ export class GameService {
     }
   }
 
+  /*
+  This method turns setA into setB without removing the common elements from setA.
+  The reason for having this is to aviod creating new divs (view entities on screen) every tims this array is updated
+  */
   public gracefulUpdate(setA, setB){
     let aMap = {};
     let bMap = {};
@@ -138,6 +142,39 @@ export class GameService {
     return {"added":added,"removed":"removed"}
   }
 
+  public addNotInFirst(first: any[], second: any[]){
+    let map = {}
+    for(let k in first){
+      map[first[k].id] = true
+    }
+
+    let added = []
+    for(let k in second){
+      if(!map[second[k].id]){
+        first.push(second[k]);
+        added.push(second[k]);
+      }
+    }
+
+    return added;
+  }
+
+  public removeNotInSecond(first: object, second: any[]){
+    let map = {}
+    for(let k in second){
+      map[second[k].id] = true
+    }
+
+    let removed = []
+    for(let i in first){
+      if(!map[first[i].id]){
+        removed.push(first[i])
+        delete first[i];
+      }
+    }
+    return removed;
+  }
+
   public translateToFrontendPlayerSturct(backendPlayer, frontendPlayer){
     if(frontendPlayer == null){
       frontendPlayer = {
@@ -172,7 +209,6 @@ export class GameService {
       console.log("GAME_TICK");
       console.log(data);
       if(data == null){
-        console.log("Wadafac?");
         return;
       }
       
@@ -183,6 +219,7 @@ export class GameService {
         let frontendPlayer = this.players[backendPlayer.id];
         let player = this.translateToFrontendPlayerSturct(backendPlayer, frontendPlayer);
         this.playerIds.push(player.id);
+        
         if(player.id == this.playerId){
           this.ready = player.ready;
         }
@@ -190,12 +227,8 @@ export class GameService {
         if(frontendPlayer == null){
           this.players[player.id] = player;
         }
-        
-        if(player.id == this.playerId){
-          this.ready = player.ready
-        }
       }
-
+      
       console.log("PLAYERS");
       console.log(this.players)
 
