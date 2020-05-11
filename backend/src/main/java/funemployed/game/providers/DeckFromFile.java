@@ -18,14 +18,16 @@ public class DeckFromFile implements DeckProvider {
 
     @Override
     public Deck newDeck() {
-        BufferedReader br = null;
-        try {
-           br = new BufferedReader(new FileReader(new File(path)));
+        List<String> rawCards = null;
+        try(BufferedReader br = new BufferedReader(new FileReader(new File(path)))) {
+           rawCards = br.lines().collect(Collectors.toList());
         } catch(FileNotFoundException e){
+            throw new RuntimeException(e);
+        } catch (IOException e){
             throw new RuntimeException(e);
         }
 
-        List<String> rawCards = br.lines().collect(Collectors.toList());
+
         List<Card> cards = new ArrayList<>(rawCards.size());
         for(int i = 0 ; i < rawCards.size(); ++i){
             Card card = new Card(i, rawCards.get(i));
