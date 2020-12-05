@@ -2,7 +2,6 @@ package funemployed.game.providers;
 
 import funemployed.game.Card;
 import funemployed.game.Deck;
-import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.util.ArrayList;

@@ -1,17 +1,13 @@
 package funemployed.game;
-import com.codahale.metrics.Meter;
-import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import funemployed.game.errors.DeckException;
 import funemployed.game.errors.GameException;
 import funemployed.game.errors.PlayerException;
 import funemployed.game.metrics.GameStatisticsSync;
-import funemployed.game.metrics.InfluxdbMetricsSync;
 import funemployed.http.Endpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.Collections;

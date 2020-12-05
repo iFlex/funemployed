@@ -1,7 +1,6 @@
 package funemployed.game;
 
 import funemployed.game.metrics.GameStatisticsSync;
-import funemployed.game.metrics.InfluxdbMetricsSync;
 import funemployed.game.persisters.PersisterService;
 import funemployed.game.providers.DeckFromFile;
 import funemployed.game.providers.DeckProvider;
