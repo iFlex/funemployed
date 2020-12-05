@@ -2,7 +2,6 @@ package funemployed.http;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import com.codahale.metrics.*;
 import funemployed.game.GameInstance;
@@ -11,10 +10,8 @@ import funemployed.game.Player;
 import funemployed.game.errors.DeckException;
 import funemployed.game.errors.GameException;
 import funemployed.game.errors.PlayerException;
+import funemployed.game.metrics.InfluxdbMetricsSync;
 import funemployed.game.persisters.PersisterService;
-import metrics_influxdb.HttpInfluxdbProtocol;
-import metrics_influxdb.InfluxdbReporter;
-import metrics_influxdb.api.measurements.CategoriesMetricMeasurementTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,19 +52,6 @@ public class Endpoint {
     private final Timer turnEndTimer = metrics.timer(name(Endpoint.class, "turn-end"));
     private final Timer gameStatusTimer = metrics.timer(name(Endpoint.class, "game-status"));
 
-    @Value("${influx.server:localhost}")
-    String influxServer;
-    @Value("${influx.port:8086}")
-    int influxServerPort;
-    @Value("${influx.user:root}")
-    String influxUser;
-    @Value("${influx.password:root}")
-    String influxPassword;
-    @Value("${influx.db:funemployed}")
-    String influxDatabase;
-
-    ScheduledReporter reporter;
-
     @Value("${ignore_cookies:false}")
     private Boolean ignoreCookies;
 
@@ -77,24 +61,8 @@ public class Endpoint {
     @Autowired
     PersisterService persisterService;
 
-    @Autowired
-    public void init() {
-        try {
-            reporter = InfluxdbReporter.forRegistry(metrics)
-                    .protocol(new HttpInfluxdbProtocol("http", influxServer, influxServerPort, influxUser, influxPassword, influxDatabase))
-                    .convertRatesTo(TimeUnit.SECONDS)
-                    .convertDurationsTo(TimeUnit.MILLISECONDS)
-                    .filter(MetricFilter.ALL)
-                    .skipIdleMetrics(false)
-                    .tag("application", "funemployed")
-                    //.tag("client", "OurImportantClient")
-                    //.tag("server", serverIP)
-                    .transformer(new CategoriesMetricMeasurementTransformer("module", "artifact"))
-                    .build();
-            reporter.start(1, TimeUnit.SECONDS);
-        } catch (Exception e){
-            logger.error("Failed to initialise InfluxDB Metrics Reporter. Metrics will not be saved to the database",e);
-        }
+    public Endpoint(@Autowired InfluxdbMetricsSync influxdbReporter){
+        influxdbReporter.addRegistry(metrics);
     }
 
     private synchronized String newToken(String userId){

@@ -1,12 +1,17 @@
 package funemployed.game;
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import funemployed.game.errors.DeckException;
 import funemployed.game.errors.GameException;
 import funemployed.game.errors.PlayerException;
+import funemployed.game.metrics.GameStatisticsSync;
+import funemployed.game.metrics.InfluxdbMetricsSync;
 import funemployed.http.Endpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,7 +52,11 @@ public class GameInstance {
     @JsonProperty
     private int turnsLeft = 0;
 
-    public GameInstance(){
+    @JsonIgnore
+    private GameStatisticsSync gameStatisticsSync;
+
+
+    public GameInstance() {
         //used for JSON deser
     }
 
@@ -55,6 +64,10 @@ public class GameInstance {
         this.id = id;
         this.jobs = jobs;
         this.traits = traits;
+    }
+
+    public void setGameStatisticsSync(GameStatisticsSync gs){
+        gameStatisticsSync = gs;
     }
 
     public Object pickNext(Object current, List<?> options) throws GameException {
@@ -329,6 +342,10 @@ public class GameInstance {
         if(interviewInProgress) {
             playersInterviewed.add(currentCandidate.getId());
             interviewInProgress = false;
+
+            if(gameStatisticsSync != null)
+                gameStatisticsSync.reportCardsContended(currentRole, currentCandidate.getCandidateCards());
+
             currentCandidate = null;
         } else {
             throw new GameException("No intervie win progress");
@@ -355,6 +372,9 @@ public class GameInstance {
             player.addWonCard(currentRole);
             turnInProgress = false;
             turnsPlayed += 1;
+
+            if(gameStatisticsSync != null)
+                gameStatisticsSync.reportCardsWon(id, currentRole, player.getCandidateCards());
         } else {
             throw new GameException("Candidates left to interview: " + remainingCanidates);
         }

@@ -1,5 +1,7 @@
 package funemployed.game;
 
+import funemployed.game.metrics.GameStatisticsSync;
+import funemployed.game.metrics.InfluxdbMetricsSync;
 import funemployed.game.persisters.PersisterService;
 import funemployed.game.providers.DeckFromFile;
 import funemployed.game.providers.DeckProvider;
@@ -25,6 +27,9 @@ public class GameInstanceFactory {
 
     @Autowired
     PersisterService persisterService;
+
+    @Autowired
+    GameStatisticsSync gameStatisticsSync;
 
     private HashMap<String, List<DeckProvider>> deckProviderRegistry = new HashMap<>();
     private HashMap<String, GameInstance> gameRegistry = new HashMap<String, GameInstance>();
@@ -92,6 +97,7 @@ public class GameInstanceFactory {
         }
 
         GameInstance gameInstance = new GameInstance(gid, deckProviders.get(0).newDeck(), deckProviders.get(1).newDeck());
+        gameInstance.setGameStatisticsSync(gameStatisticsSync);
         synchronized (gameRegistry) {
             gameRegistry.put(gameInstance.getId(), gameInstance);
         }
